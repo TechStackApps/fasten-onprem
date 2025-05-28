@@ -1,5 +1,13 @@
 # Strategic Roadmap: Fasten Health On-Prem ePA Integration
 
+## Foreword: ePA Integration Approaches
+
+This strategic roadmap outlines the path for integrating Fasten Health On-Prem with the German electronic patient record (ePA) system by pursuing the **direct registration and approval of Fasten Health's own ePA-Frontend des Versicherten (ePA-FdV) with gematik.** This approach involves Fasten Health undergoing the complete approval lifecycle, including security assessments, product evaluations, and operational readiness checks as mandated by gematik for its FdV. The subsequent phases detailed in this document are predicated on this direct approval strategy.
+
+Alternatively, another potential approach for ePA integration could involve **leveraging an existing, gematik-approved ePA-FdV module from an intermediary third-party provider.** In such a scenario, Fasten Health would integrate this pre-approved module into its application. This could potentially streamline parts of the approval process, as the core FdV component would already have gematik's sanction. However, this approach would introduce dependencies on the third-party provider, including their update cycles, feature sets, and any associated costs or licensing terms. The specifics of integration, data flow, and residual responsibilities for Fasten Health would need careful evaluation if this path were to be considered.
+
+**The current roadmap exclusively details the direct FdV registration approach.**
+
 ## Subject: Strategic Roadmap for Fasten Health On-Prem ePA Integration
 
 ## Primary Objective:
