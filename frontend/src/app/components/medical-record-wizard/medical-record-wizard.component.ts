@@ -45,6 +45,7 @@ import {
 import {
   MedicalRecordWizardAddLabResultsComponent
 } from '../medical-record-wizard-add-lab-results/medical-record-wizard-add-lab-results.component';
+import { clearFormData, FORM_TYPES, getFormSection, saveFormSection } from 'src/lib/utils/formStorage';
 
 @Component({
   standalone: true,
@@ -101,6 +102,12 @@ export class MedicalRecordWizardComponent implements OnInit {
       labresults: new FormArray([]),
       attachments: new FormArray([]),
     });
+
+    // Initialize the form with saved data if available
+    this.resetMedicationsForm();
+    this.resetProcedureForm();
+    this.resetPractitionerForm();
+    this.resetOrganizationForm();
 
     if(this.existingEncounter){
       this.addEncounter({data: this.existingEncounter, action: 'find'});
@@ -183,6 +190,30 @@ export class MedicalRecordWizardComponent implements OnInit {
 
     this.medications.push(medicationGroup);
   }
+
+  private resetMedicationsForm() {
+    const control = this.form.get('medications') as FormArray;
+    control.clear(); // Remove any existing entries
+
+    const savedForm = getFormSection(FORM_TYPES.MEDICATION);
+    if (savedForm && Array.isArray(savedForm)) {
+    try {
+      savedForm.forEach(item => {
+        control.push(new FormGroup({
+          data: new FormControl(item.data, Validators.required)
+        }));
+      });
+    } catch (err) {
+      console.warn('Invalid saved medications data');
+    }
+  }
+
+    control.valueChanges.subscribe(form => {
+      saveFormSection(FORM_TYPES.MEDICATION, form);
+    });
+  }
+
+
   addProcedure(){
     const procedureGroup = new FormGroup({
       data: new FormControl<NlmSearchResults>(null, Validators.required),
@@ -195,6 +226,29 @@ export class MedicalRecordWizardComponent implements OnInit {
 
     this.procedures.push(procedureGroup);
   }
+
+  private resetProcedureForm() {
+    const control = this.form.get('procedures') as FormArray;
+    control.clear(); // Remove any existing entries
+
+    const savedForm = getFormSection(FORM_TYPES.PROCEDURE);
+    if (savedForm && Array.isArray(savedForm)) {
+    try {
+      savedForm.forEach(item => {
+        control.push(new FormGroup({
+          data: new FormControl(item.data, Validators.required)
+        }));
+      });
+    } catch (err) {
+      console.warn('Invalid saved procedures data');
+    }
+  }
+
+    control.valueChanges.subscribe(form => {
+      saveFormSection(FORM_TYPES.PROCEDURE, form);
+    });
+  }
+
   addPractitioner(openPractitionerResult: WizardFhirResourceWrapper<PractitionerModel>){
     const practitionerGroup = new FormGroup({
       data: new FormControl(openPractitionerResult.data),
@@ -203,6 +257,29 @@ export class MedicalRecordWizardComponent implements OnInit {
     });
     this.practitioners.push(practitionerGroup);
   }
+
+  private resetPractitionerForm() {
+    const control = this.form.get('practitioners') as FormArray;
+    control.clear(); // Remove any existing entries
+
+    const savedForm = getFormSection(FORM_TYPES.PRACTITIONER);
+    if (savedForm && Array.isArray(savedForm)) {
+    try {
+      savedForm.forEach(item => {
+        control.push(new FormGroup({
+          data: new FormControl(item.data, Validators.required)
+        }));
+      });
+    } catch (err) {
+      console.warn('Invalid saved practitioners data');
+    }
+  }
+
+    control.valueChanges.subscribe(form => {
+      saveFormSection(FORM_TYPES.PRACTITIONER, form);
+    });
+  }
+
   addOrganization(openOrganizationResult: WizardFhirResourceWrapper<OrganizationModel>) {
     const organizationGroup = new FormGroup({
       data: new FormControl(openOrganizationResult.data),
@@ -210,6 +287,29 @@ export class MedicalRecordWizardComponent implements OnInit {
     });
     this.organizations.push(organizationGroup);
   }
+
+  private resetOrganizationForm() {
+    const control = this.form.get('organizations') as FormArray;
+    control.clear(); // Remove any existing entries
+
+    const savedForm = getFormSection(FORM_TYPES.PRACTITIONER);
+    if (savedForm && Array.isArray(savedForm)) {
+    try {
+      savedForm.forEach(item => {
+        control.push(new FormGroup({
+          data: new FormControl(item.data, Validators.required)
+        }));
+      });
+    } catch (err) {
+      console.warn('Invalid saved organizations data');
+    }
+  }
+
+    control.valueChanges.subscribe(form => {
+      saveFormSection(FORM_TYPES.PRACTITIONER, form);
+    });
+  }  
+
   addAttachment(attachment: ResourceCreateAttachment){
     const attachmentGroup = new FormGroup({
       id: new FormControl(attachment.id, Validators.required),
@@ -352,6 +452,7 @@ export class MedicalRecordWizardComponent implements OnInit {
     if (this.form.valid) {
       this.submitWizardLoading = true;
 
+      clearFormData(); // Clear the form data from local storage
       let resourceStorage = GenerateR4ResourceLookup(this.form.getRawValue());
 
       //generate a ndjson file from the resourceList

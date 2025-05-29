@@ -8,6 +8,7 @@ import {NlmClinicalTableSearchService} from '../../services/nlm-clinical-table-s
 import {LabresultsQuestionnaire} from '../../models/fasten/labresults-questionnaire';
 import {fhirModelFactory} from '../../../lib/models/factory';
 import {LoadingSpinnerComponent} from '../loading-spinner/loading-spinner.component';
+import { FORM_TYPES, getFormSection, saveFormSection } from 'src/lib/utils/formStorage';
 
 @Component({
   standalone: true,
@@ -70,7 +71,19 @@ export class MedicalRecordWizardAddLabResultsComponent implements OnInit {
     this.newLabPanelTypeaheadForm = new FormGroup({
       data: new FormControl(null, Validators.required),
     })
+
+     // Load draft from localStorage
+    const savedForm = getFormSection(FORM_TYPES.LAB_RESULT);
+    if (savedForm) {
+      try {
+        this.newLabPanelTypeaheadForm.patchValue(savedForm);
+      } catch (err) {
+        console.warn('Invalid JSON in localStorage for lab result form');
+      }
+    }
+
     this.newLabPanelTypeaheadForm.valueChanges.subscribe(form => {
+      saveFormSection(FORM_TYPES.LAB_RESULT, form);
       let val = form.data
       if(val && val.id){
         this.loading = true

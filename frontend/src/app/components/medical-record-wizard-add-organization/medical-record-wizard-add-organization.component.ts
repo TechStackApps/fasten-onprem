@@ -16,6 +16,7 @@ import {uuidV4} from '../../../lib/utils/uuid';
 import {fhirModelFactory} from '../../../lib/models/factory';
 import {ResourceFhir} from '../../models/fasten/resource_fhir';
 import {ResourceType} from '../../../lib/models/constants';
+import { FORM_TYPES, getFormSection, saveFormSection } from 'src/lib/utils/formStorage';
 
 @Component({
   standalone: true,
@@ -158,7 +159,19 @@ export class MedicalRecordWizardAddOrganizationComponent implements OnInit {
     this.newOrganizationTypeaheadForm = new FormGroup({
       data: new FormControl(null, Validators.required),
     })
+
+     // Load draft from localStorage
+    const savedForm = getFormSection(FORM_TYPES.ORGANIZATION);
+    if (savedForm) {
+      try {
+        this.newOrganizationTypeaheadForm.patchValue(savedForm);
+      } catch (err) {
+        console.warn('Invalid JSON in localStorage for organization form');
+      }
+    }
+
     this.newOrganizationTypeaheadForm.valueChanges.subscribe(form => {
+      saveFormSection(FORM_TYPES.ORGANIZATION, form);
       let val = form.data
 
       if(val == null){

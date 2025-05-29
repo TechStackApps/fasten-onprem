@@ -13,6 +13,7 @@ import {fhirModelFactory} from '../../../lib/models/factory';
 import {RecResourceRelatedDisplayModel} from '../../../lib/utils/resource_related_display_model';
 import {EncounterModel} from '../../../lib/models/resources/encounter-model';
 import {uuidV4} from '../../../lib/utils/uuid';
+import { FORM_TYPES, getFormSection, saveFormSection } from 'src/lib/utils/formStorage';
 
 @Component({
   standalone: true,
@@ -143,7 +144,6 @@ export class MedicalRecordWizardAddEncounterComponent implements OnInit {
   }
 
   private resetEncounterForm(){
-
     this.newEncounterForm = new FormGroup({
       id: new FormControl(null),
       identifier: new FormControl([]),
@@ -152,5 +152,19 @@ export class MedicalRecordWizardAddEncounterComponent implements OnInit {
       period_end: new FormControl(null),
     })
 
+    // Load draft from localStorage
+    const savedForm = getFormSection(FORM_TYPES.ENCOUNTER);
+    if (savedForm) {
+      try {
+        this.newEncounterForm.patchValue(savedForm);
+      } catch (err) {
+        console.warn('Invalid JSON in localStorage for encounter form');
+      }
+    }
+
+    // Auto-save changes
+    this.newEncounterForm.valueChanges.subscribe(val => {
+      saveFormSection(FORM_TYPES.ENCOUNTER, val);
+    });
   }
 }

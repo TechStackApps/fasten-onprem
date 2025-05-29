@@ -16,6 +16,7 @@ import {CodableConceptModel} from '../../../lib/models/datatypes/codable-concept
 import {uuidV4} from '../../../lib/utils/uuid';
 import {PractitionerModel} from '../../../lib/models/resources/practitioner-model';
 import {parseFullName}  from 'parse-full-name'
+import { FORM_TYPES, getFormSection, saveFormSection } from 'src/lib/utils/formStorage';
 
 @Component({
   standalone: true,
@@ -166,7 +167,19 @@ export class MedicalRecordWizardAddPractitionerComponent implements OnInit {
     this.newPractitionerTypeaheadForm = new FormGroup({
       data: new FormControl(null, Validators.required),
     })
+
+    // Load draft from localStorage
+    const savedForm = getFormSection(FORM_TYPES.PRACTITIONER);
+    if (savedForm) {
+      try {
+        this.newPractitionerTypeaheadForm.patchValue(savedForm);
+      } catch (err) {
+        console.warn('Invalid JSON in localStorage for practitioner form');
+      }
+    }
+
     this.newPractitionerTypeaheadForm.valueChanges.subscribe(form => {
+      saveFormSection(FORM_TYPES.PRACTITIONER, form);
       let val = form.data
       if(val == null){
         //reset the dependant fields (user cleared the text box)
