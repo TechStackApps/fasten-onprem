@@ -12,7 +12,7 @@ Alternatively, another potential approach for ePA integration could involve **le
 
 ## Primary Objective:
 
-Develop a comprehensive, step-by-step strategic roadmap for integrating Fasten Health On-Prem with the German electronic patient record (ePA) system. The roadmap should culminate in a Fasten Health user (a German insured individual) being able to securely connect their Fasten Health installation to their personal ePA records and download these records for use within the application. This roadmap targets compliance with **Produkttypversion (PTV) 3.1.0-1** of the ePA-Frontend des Versicherten (ePA-FdV).
+Develop a comprehensive, step-by-step strategic roadmap for integrating Fasten Health On-Prem with the German electronic patient record (ePA) system. The roadmap should culminate in a Fasten Health user (a German insured individual) being able to securely connect their Fasten Health installation to their personal ePA records and download these records for use within the application. This roadmap targets compliance with **Produkttypversion (PTV) 3.1.2-0** of the ePA-Frontend des Versicherten (ePA-FdV).
 
 ## Key Deliverables & Goals:
 
@@ -24,19 +24,23 @@ Develop a comprehensive, step-by-step strategic roadmap for integrating Fasten H
 
 ## Information Sources & Interpretation:
 
-This roadmap is based on the analysis of the following gematik documents, with a focus on the versions specified for PTV 3.1.0-1 in its Produkttypsteckbrief:
+This roadmap is based on the analysis of the following gematik documents, with a focus on the versions specified for PTV 3.1.2-0 in its Produkttypsteckbrief:
 
-*   `gemZul_Prod_ePA_FdV_V1.5.0.pdf` (ePA-FdV Product Approval Procedure) - PTV 3.1.0-1 references v1.3.0.
-*   `gemSpec_ePA_FdV_V2.3.1` (ePA-FdV Specifications) - As specified in `gemProdT_ePA_FdV_PTV_3.1.0-1_V1.0.0.pdf`.
-*   `gemKPT_Test_V2.9.0` (TI Test Concept) - As specified in `gemProdT_ePA_FdV_PTV_3.1.0-1_V1.0.0.pdf`.
-*   `gemProdT_ePA_FdV_PTV_3.1.0-1_V1.0.0.pdf` (ePA-FdV Product Type Steckbrief for PTV 3.1.0-1).
+*   `gemZul_Prod_ePA_FdV_V1.5.0.pdf` (ePA-FdV Product Approval Procedure) - PTV 3.1.2-0 references v1.3.0 (Needs verification against PTV 3.1.2-0 Steckbrief).
+*   `gemSpec_ePA_FdV_V2.5.0.pdf` (ePA-FdV Specifications) - As specified in `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf`.
+*   `gemKPT_Test_V2.10.0.pdf` (TI Test Concept) - As specified in `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf`.
+*   `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf` (ePA-FdV Product Type Steckbrief for PTV 3.1.2-0).
 *   `gemRL_PruefSichEig_DS_V2.2.0.pdf` (Guideline for Security Suitability Testing).
 *   `gemZul_Best_SiGu_V1.13.0.pdf` (Confirmation of Security Assessment Procedure).
 *   `gemKPT_Inbetriebnahme_ePA-FdV_V2.0.0.pdf` (Controlled Commissioning Concept for ePA-FdV).
 *   `gemVZ_Afo_Herst_FdV_V_1.2.0_V1.0.0.pdf` (Operational Requirements for FdV Manufacturers).
-*   `gemZul_uebergrVerf_V2.11.0.pdf` (Overarching Approval Procedure) - PTV 3.1.0-1 references v2.10.0.
+*   `gemZul_uebergrVerf_V2.11.0.pdf` (Overarching Approval Procedure) - PTV 3.1.2-0 references v2.10.0 (Needs verification against PTV 3.1.2-0 Steckbrief).
 
-The roadmap prioritizes compliance with the specific document versions listed in the `gemProdT_ePA_FdV_PTV_3.1.0-1_V1.0.0.pdf` Steckbrief for achieving approval for PTV 3.1.0-1.
+The roadmap prioritizes compliance with the specific document versions listed in the `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf` Steckbrief for achieving approval for PTV 3.1.2-0. It is critical to verify the versions of all referenced gematik documents against the contents of the PTV 3.1.2-0 Steckbrief, as the versions listed above are based on the previous PTV 3.1.0-1 Steckbrief unless a newer version was explicitly provided.
+
+Additional relevant documents reviewed include:
+*   `docs/epa/ePA User Authentication Desktop FdV with Mobile Insurer ID App (QR Code Handoff for PIN-Biometric Verification).md`: Provides a detailed example of a potential authentication flow.
+*   Documents in `docs/epa/HealthID/`: May provide additional context on GesundheitsID, which is central to authentication. Their direct normative impact on FdV approval should be confirmed.
 
 ## Overall ePA-FdV Approval Lifecycle (Simplified)
 
@@ -77,6 +81,8 @@ graph TD
     class E,L,N,R,V yellow;
     class W green;
 ```
+
+**Note:** The following phased roadmap outlines the general steps based on the ePA-FdV approval process. However, the specific activities, timelines, required resources, potential challenges, deliverables, and the detailed "Key Requirements Checklist" **must be thoroughly re-evaluated and updated based on the detailed contents of the newly referenced documents:** `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf`, `gemSpec_ePA_FdV_V2.5.0.pdf`, and `gemKPT_Test_V2.10.0.pdf`. These documents contain the normative requirements and testing procedures for PTV 3.1.2-0.
 
 ## Phased Strategic Roadmap
 
