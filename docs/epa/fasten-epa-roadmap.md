@@ -90,7 +90,7 @@ graph TD
 
 *   **Objective:** Establish a clear understanding of all requirements for ePA-FdV PTV 3.1.0-1, define project scope precisely, assemble the team, and create a detailed internal project plan.
 *   **Key Activities:**
-    *   Detailed review and interpretation of all normative requirements listed in `gemProdT_ePA_FdV_PTV_3.1.0-1_V1.0.0.pdf` from the specified versions of source documents (`gemSpec_ePA_FdV V2.3.1`, `gemKPT_Test V2.9.0`, etc.).
+    *   Detailed review and interpretation of all normative requirements listed in `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf` from the specified versions of source documents (`gemSpec_ePA_FdV V2.3.1`, `gemKPT_Test V2.9.0`, etc.).
     *   Perform a gap analysis between the current Fasten Health On-Prem architecture/features and the ePA-FdV PTV 3.1.0-1 requirements (functional, technical, security, operational).
     *   Define the precise scope of the ePA integration feature within Fasten Health On-Prem, adhering to the exclusion of TI-Messenger and E-Rezept.
     *   Assemble the core project team, including development, legal/compliance, testing, and security expertise.
@@ -109,7 +109,7 @@ graph TD
 
 *   **Objective:** Achieve gematik confirmation for the required Security Assessment (`Sicherheitsgutachten`), which evaluates the security of the manufacturer's processes.
 *   **Key Activities:**
-    *   Identify all requirements from `gemProdT_ePA_FdV_PTV_3.1.0-1_V1.0.0.pdf` (Section 3.2.3) that are subject to the `Sicherheitsgutachten`. These relate to secure development lifecycle, vulnerability management, change management, etc., as defined in documents like `gemSpec_DS_Hersteller` (referenced in `gemVZ_Afo_Herst_FdV`).
+    *   Identify all requirements from `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf` (Section 3.2.3) that are subject to the `Sicherheitsgutachten`. These relate to secure development lifecycle, vulnerability management, change management, etc., as defined in documents like `gemSpec_DS_Hersteller` (referenced in `gemVZ_Afo_Herst_FdV`).
     *   Ensure internal processes and documentation meet these requirements.
     *   Engage a qualified `Sicherheitsgutachter` (meeting the base qualification and gematik's additional qualification as per `gemRL_PruefSichEig_DS_V2.2.0`).
     *   Undergo the `Sicherheitsgutachten` audit, providing necessary documentation and access.
@@ -165,7 +165,7 @@ graph TD
     *   Submit the formal application for "Zulassung Produkt ePA-FdV" via the gematik portal, referencing the confirmed `Sicherheitsgutachten` (from Phase 1).
     *   Submit all required proofs and documentation: gematik Confirmation of Security Assessment, complete EvT documentation suite, product build, Test Driver.
     *   Engage a qualified `Produktgutachter` (meeting criteria in `gemRL_PruefSichEig_DS_V2.2.0`, including BSI recognition and app testing experience).
-    *   Undergo the `Produktgutachten` audit, which includes deep technical testing, source code analysis, and penetration testing. This covers requirements listed in `gemProdT_ePA_FdV_PTV_3.1.0-1` Section 3.2.1.
+    *   Undergo the `Produktgutachten` audit, which includes deep technical testing, source code analysis, and penetration testing. This covers requirements listed in `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf` Section 3.2.1.
     *   Submit the formal `Produktgutachten` report to gematik.
     *   Support gematik during their formal Zulassungstests (ZulT) in the Testumgebung (TU), including Eingangsprüfung (ZulT), Produkttest (ZulT), and Produktübergreifender Test (ZulT) as per `gemKPT_Test V2.9.0`. Provide Whitelabel-Apps and necessary devices/card readers as required by `gemKPT_Test` Section 9.2.
     *   Address any findings or requests for corrections from gematik during the ZulT.
