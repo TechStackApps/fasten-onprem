@@ -88,10 +88,10 @@ graph TD
 
 ### Phase 0: Foundation & Strategic Planning
 
-*   **Objective:** Establish a clear understanding of all requirements for ePA-FdV PTV 3.1.0-1, define project scope precisely, assemble the team, and create a detailed internal project plan.
+*   **Objective:** Establish a clear understanding of all requirements for ePA-FdV PTV 3.1.2-0, define project scope precisely, assemble the team, and create a detailed internal project plan.
 *   **Key Activities:**
-    *   Detailed review and interpretation of all normative requirements listed in `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf` from the specified versions of source documents (`gemSpec_ePA_FdV V2.3.1`, `gemKPT_Test V2.9.0`, etc.).
-    *   Perform a gap analysis between the current Fasten Health On-Prem architecture/features and the ePA-FdV PTV 3.1.0-1 requirements (functional, technical, security, operational).
+    *   Detailed review and interpretation of all normative requirements listed in `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf` from the specified versions of source documents (`gemSpec_ePA_FdV V2.5.0.pdf`, `gemKPT_Test V2.10.0.pdf`, etc.).
+    *   Perform a gap analysis between the current Fasten Health On-Prem architecture/features and the ePA-FdV PTV 3.1.2-0 requirements (functional, technical, security, operational).
     *   Define the precise scope of the ePA integration feature within Fasten Health On-Prem, adhering to the exclusion of TI-Messenger and E-Rezept.
     *   Assemble the core project team, including development, legal/compliance, testing, and security expertise.
     *   Develop a detailed internal project plan with timelines, milestones, and resource allocation.
@@ -126,19 +126,19 @@ graph TD
 
 ### Phase 2: ePA-FdV Product Development & Internal Testing (EvT)
 
-*   **Objective:** Develop and test Fasten Health On-Prem to meet all functional and technical requirements of ePA-FdV PTV 3.1.0-1 and successfully complete Eigenverantwortliche Tests (EvT).
+*   **Objective:** Develop and test Fasten Health On-Prem to meet all functional and technical requirements of ePA-FdV PTV 3.1.2-0 and successfully complete Eigenverantwortliche Tests (EvT).
 *   **Key Activities:**
-    *   Implement all ePA-FdV functionalities based on the detailed requirements from `gemSpec_ePA_FdV V2.3.1` and other relevant specifications for PTV 3.1.0-1 (e.g., IHE profiles, security measures, data handling, user interface elements, configuration parameters).
+    *   Implement all ePA-FdV functionalities based on the detailed requirements from `gemSpec_ePA_FdV V2.5.0.pdf` and other relevant specifications for PTV 3.1.2-0 (e.g., IHE profiles, security measures, data handling, user interface elements, configuration parameters).
     *   Develop the Test Driver module as required for automated testing by gematik (`gemSpec_ePA_FdV` Section 6.3, `gemKPT_Test` Section 9.1).
     *   Set up access to the gematik Referenzumgebung (RU) for self-testing.
     *   Develop comprehensive test cases covering all functional and non-functional requirements for PTV 3.1.0-1.
-    *   Conduct rigorous internal testing (Eigenverantwortliche Tests - EvT) in the RU, including Produkttests (EvT) and Produktübergreifende Tests (EvT) as per `gemKPT_Test V2.9.0`. Aim for 100% test coverage of mandatory requirements.
+    *   Conduct rigorous internal testing (Eigenverantwortliche Tests - EvT) in the RU, including Produkttests (EvT) and Produktübergreifende Tests (EvT) as per `gemKPT_Test V2.10.0.pdf`. Aim for 100% test coverage of mandatory requirements.
     *   Document all EvT activities and results meticulously, creating the full suite of EvT documentation (Testkonzept, Testspezifikation, Testprotokoll, Testbericht, Release Notes, Produktdokumentation, Afo_Testmatrix) according to gematik templates and guidelines (`gemKPT_Test` Section 4.7).
 *   **Estimated Timeline:** 6-9 months (Development and comprehensive internal testing)
 *   **Required Resources:** Development Team (Go backend, Angular frontend), QA Team, Technical Writers, Access to RU.
 *   **Potential Challenges:** Implementing complex ePA specifications (e.g., IHE, VAU, authentication flows), achieving 100% test coverage, integrating with test environments, documentation effort.
 *   **Deliverables:**
-    *   Fasten Health On-Prem build with ePA-FdV PTV 3.1.0-1 compliant features.
+    *   Fasten Health On-Prem build with ePA-FdV PTV 3.1.2-0 compliant features.
     *   Functional Test Driver module.
     *   Complete suite of EvT documentation.
 
@@ -160,14 +160,14 @@ graph TD
 
 ### Phase 4: gematik Product Approval (`Produktzulassung ePA-FdV`)
 
-*   **Objective:** Obtain formal product approval for Fasten Health On-Prem as an ePA-FdV PTV 3.1.0-1 from gematik, with the ancillary provision for KIB.
+*   **Objective:** Obtain formal product approval for Fasten Health On-Prem as an ePA-FdV PTV 3.1.2-0 from gematik, with the ancillary provision for KIB.
 *   **Key Activities:**
     *   Submit the formal application for "Zulassung Produkt ePA-FdV" via the gematik portal, referencing the confirmed `Sicherheitsgutachten` (from Phase 1).
     *   Submit all required proofs and documentation: gematik Confirmation of Security Assessment, complete EvT documentation suite, product build, Test Driver.
     *   Engage a qualified `Produktgutachter` (meeting criteria in `gemRL_PruefSichEig_DS_V2.2.0`, including BSI recognition and app testing experience).
     *   Undergo the `Produktgutachten` audit, which includes deep technical testing, source code analysis, and penetration testing. This covers requirements listed in `gemProdT_ePA_FdV_PTV_3.1.2-0_V1.0.0.pdf` Section 3.2.1.
     *   Submit the formal `Produktgutachten` report to gematik.
-    *   Support gematik during their formal Zulassungstests (ZulT) in the Testumgebung (TU), including Eingangsprüfung (ZulT), Produkttest (ZulT), and Produktübergreifender Test (ZulT) as per `gemKPT_Test V2.9.0`. Provide Whitelabel-Apps and necessary devices/card readers as required by `gemKPT_Test` Section 9.2.
+    *   Support gematik during their formal Zulassungstests (ZulT) in the Testumgebung (TU), including Eingangsprüfung (ZulT), Produkttest (ZulT), and Produktübergreifender Test (ZulT) as per `gemKPT_Test V2.10.0.pdf`. Provide Whitelabel-Apps and necessary devices/card readers as required by `gemKPT_Test` Section 9.2.
     *   Address any findings or requests for corrections from gematik during the ZulT.
 *   **Estimated Timeline:** 4-6 months (Gematik processing and testing time)
 *   **Required Resources:** Project Management, QA Team, Development Team (for bug fixing), External `Produktgutachter`, Provision of Test Objects (Whitelabel-Apps, devices, card readers).
@@ -176,7 +176,7 @@ graph TD
     *   Submitted application and all required documentation/proofs.
     *   Completed `Produktgutachten` report.
     *   Successful completion of gematik Zulassungstests.
-    *   Gematik Product Approval (`Zulassungsbescheid`) for ePA-FdV PTV 3.1.0-1, explicitly stating the requirement to conduct KIB.
+    *   Gematik Product Approval (`Zulassungsbescheid`) for ePA-FdV PTV 3.1.2-0, explicitly stating the requirement to conduct KIB.
 
 ### Phase 5: Controlled Commissioning (KIB)
 
@@ -222,7 +222,7 @@ graph TD
 
 This is not exhaustive but highlights some critical requirements based on the reviewed documents:
 
-*   [ ] Implement ePA-FdV features according to `gemSpec_ePA_FdV V2.3.1`.
+*   [ ] Implement ePA-FdV features according to `gemSpec_ePA_FdV V2.5.0.pdf`.
 *   [ ] Ensure local execution of ePA-specific code (A_16973-01).
 *   [ ] Implement security measures against OWASP Mobile Top 10 (A_15255-01).
 *   [ ] Avoid advertising tracking and adhere to strict rules for other tracking (A_15256-02, A_18767-A_18778, A_25267).
@@ -241,11 +241,11 @@ This is not exhaustive but highlights some critical requirements based on the re
 *   [ ] Implement email address management (A_25442-01).
 *   [ ] Implement UX measurement data collection and transmission (A_24669, A_24670).
 *   [ ] Implement Test Driver module (A_18044-02).
-*   [ ] Conduct comprehensive EvT and document results according to `gemKPT_Test V2.9.0`.
+*   [ ] Conduct comprehensive EvT and document results according to `gemKPT_Test V2.10.0.pdf`.
 *   [ ] Establish and document operational processes (ITSM, etc.) according to `gemVZ_Afo_Herst_FdV_V_1.2.0`.
 *   [ ] Obtain gematik Confirmation of `Sicherheitsgutachten` (`gemZul_Best_SiGu_V1.13.0.pdf`).
 *   [ ] Obtain `Produktgutachten` from qualified assessor (`gemRL_PruefSichEig_DS_V2.2.0.pdf`).
-*   [ ] Successfully complete gematik Zulassungstests (`gemKPT_Test V2.9.0`).
+*   [ ] Successfully complete gematik Zulassungstests (`gemKPT_Test V2.10.0.pdf`).
 *   [ ] Successfully complete Controlled Commissioning (KIB) (`gemKPT_Inbetriebnahme_ePA-FdV_V2.0.0.pdf`).
 
 ## Potential Challenges & Mitigation Strategies
@@ -259,4 +259,4 @@ This is not exhaustive but highlights some critical requirements based on the re
 | Coordinating KIB with external parties (users, LEIs) | Develop a clear KIB plan, recruit participants early, provide clear instructions and support, use TI-ITSM effectively. |
 | Evolving gematik requirements                    | Monitor gematik publications and announcements, build flexibility into the architecture where possible.              |
 
-This roadmap provides a strategic overview and key steps required for Fasten Health On-Prem to integrate with the German ePA system and achieve gematik approval for PTV 3.1.0-1.
+This roadmap provides a strategic overview and key steps required for Fasten Health On-Prem to integrate with the German ePA system and achieve gematik approval for PTV 3.1.2-0.
