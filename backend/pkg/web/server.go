@@ -131,6 +131,10 @@ func (ae *AppEngine) Setup() (*gin.RouterGroup, *gin.Engine) {
 				secure.GET("/users", handler.GetUsers)
 				secure.POST("/users", handler.CreateUser)
 
+				secure.GET("/sync/initiate", handler.InitiateSync)
+				secure.GET("/sync/data", handler.SyncData)
+				secure.GET("/sync/last-updated", handler.GetLastUpdated)
+
 				//server-side-events handler (only supported on mac/linux)
 				// TODO: causes deadlock on Windows
 				if runtime.GOOS != "windows" {

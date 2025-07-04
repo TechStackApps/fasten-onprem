@@ -76,5 +76,6 @@ type DatabaseRepository interface {
 		targetResourceId string,
 	) error
 
-	UnlinkResourceWithSharedNeighbors(ctx context.Context, resourceType string, resourceId string, relatedResourceType string, relatedResourceId string) (int64, error) 
+	UnlinkResourceWithSharedNeighbors(ctx context.Context, resourceType string, resourceId string, relatedResourceType string, relatedResourceId string) (int64, error)
+	GetLastUpdatedTimestamp(ctx context.Context) (*time.Time, error)
 }
