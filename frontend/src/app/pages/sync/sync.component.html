@@ -1,0 +1,11 @@
+<div class="container">
+  <h1>Sync with Health Wallet</h1>
+  <p>Scan the QR code below with your Health Wallet app to sync your data.</p>
+  <div class="qr-code">
+    <img [src]="qrCodeUrl" alt="QR Code" />
+  </div>
+  <div class="raw-data">
+    <h2>Raw QR Code Data</h2>
+    <textarea readonly [value]="qrCodeData"></textarea>
+  </div>
+</div>
