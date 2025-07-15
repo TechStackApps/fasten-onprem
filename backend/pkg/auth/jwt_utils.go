@@ -74,6 +74,62 @@ func JwtGenerateSyncToken(user models.User, issuerSigningKey string) (string, er
 	return tokenString, nil
 }
 
+// JwtGenerateSyncTokenWithExpiration generates a sync token with custom expiration time
+func JwtGenerateSyncTokenWithExpiration(user models.User, issuerSigningKey string, expiresAt time.Time) (string, error) {
+	if len(strings.TrimSpace(issuerSigningKey)) == 0 {
+		return "", fmt.Errorf("issuer signing key cannot be empty")
+	}
+	
+	userClaims := UserRegisteredClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "docker-fastenhealth-sync",
+			Subject:   user.Username,
+		},
+		UserMetadata: UserMetadata{
+			FullName: user.FullName,
+			Email:    user.Email,
+			Role:     user.Role,
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, userClaims)
+	tokenString, err := token.SignedString([]byte(issuerSigningKey))
+
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+// JwtValidateSyncToken validates a sync token and checks expiration
+func JwtValidateSyncToken(encryptionKey string, signedToken string) (*UserRegisteredClaims, error) {
+	token, err := jwt.ParseWithClaims(
+		signedToken,
+		&UserRegisteredClaims{},
+		func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return []byte(encryptionKey), nil
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(*UserRegisteredClaims)
+	if !ok {
+		err = errors.New("couldn't parse claims")
+		return nil, err
+	}
+	if claims.ExpiresAt.Unix() < time.Now().Local().Unix() {
+		err = errors.New("sync token expired")
+		return nil, err
+	}
+	return claims, nil
+}
+
 func JwtValidateFastenToken(encryptionKey string, signedToken string) (*UserRegisteredClaims, error) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
