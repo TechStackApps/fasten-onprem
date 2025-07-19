@@ -90,5 +90,50 @@ func (c *configuration) ValidateConfig() error {
 			return errors.ConfigValidationError("database.encryption.key must be at least 10 characters")
 		}
 	}
+
+	if c.IsSet("typesense") {
+		key := c.GetString("typesense.uri")
+		if key == "" {
+			return errors.ConfigValidationError("typesense.uri cannot be empty")
+		}
+		key = c.GetString("typesense.api_key")
+		if key == "" {
+			return errors.ConfigValidationError("typesense.api_key cannot be empty")
+		}
+		
+	}
+
+	if c.IsSet("typesense.search") {
+		key := c.GetString("typesense.search.collection_name")
+		if key == "" {
+			return errors.ConfigValidationError("typesense.search.collection_name cannot be empty")
+		}
+	}
+
+	if c.IsSet("typesense.chat") {
+		key := c.GetString("typesense.chat.conversation_collection_name")
+		if key == "" {
+			return errors.ConfigValidationError("typesense.chat.conversation_collection_name cannot be empty")
+		}
+
+		key = c.GetString("typesense.chat.conversation_model.id")
+		if key == "" {
+			return errors.ConfigValidationError("typesense.chat.conversation_model.id cannot be empty")
+		}
+		key = c.GetString("typesense.chat.conversation_model.name")
+		if key == "" {
+			return errors.ConfigValidationError("typesense.chat.conversation_model.name cannot be empty")
+		}
+		key = c.GetString("typesense.chat.conversation_model.vllm_url")
+		if key == "" {
+			return errors.ConfigValidationError("typesense.chat.conversation_model.vllm_url cannot be empty")
+		}
+		key = c.GetString("typesense.chat.conversation_model.max_bytes")
+		if key == "" {
+			return errors.ConfigValidationError("typesense.chat.conversation_model.max_bytes cannot be empty")
+		}
+	}
+
+
 	return nil
 }
