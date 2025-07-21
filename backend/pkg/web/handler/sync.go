@@ -1,11 +1,14 @@
 package handler
 
 import (
+        "time"
+        "crypto/rand"
+        "encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
-	"time"
+	"os"
 
 	"github.com/fastenhealth/fasten-onprem/backend/pkg"
 	"github.com/fastenhealth/fasten-onprem/backend/pkg/auth"
@@ -16,16 +19,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
-
-// SyncTokenResponse represents the response structure for sync token initiation
-type SyncTokenResponse struct {
-	Token      string    `json:"token"`
-	Address    string    `json:"address"`
-	Port       string    `json:"port"`
-	ServerName string    `json:"serverName"`
-	CreatedAt  time.Time `json:"createdAt"`
-	ExpiresAt  time.Time `json:"expiresAt"`
-}
 
 func InitiateSync(c *gin.Context) {
 	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
@@ -41,133 +34,230 @@ func InitiateSync(c *gin.Context) {
 	}
 	log.Debugf("Successfully retrieved user: %s", currentUser.Username)
 
+	// Generate unique token ID  
+	tokenIDBytes := make([]byte, 16)
+	rand.Read(tokenIDBytes)
+	tokenID := hex.EncodeToString(tokenIDBytes)
+
+	// Get client info
+	userAgent := c.GetHeader("User-Agent")
+	
 	// Generate sync token with 24-hour expiration
 	now := time.Now()
 	expiresAt := now.Add(24 * time.Hour)
 	
-	syncToken, err := auth.JwtGenerateSyncTokenWithExpiration(*currentUser, appConfig.GetString("jwt.issuer.key"), expiresAt)
+	syncToken, err := auth.JwtGenerateSyncToken(*currentUser, appConfig.GetString("jwt.issuer.key"), expiresAt, tokenID, userAgent)
 	if err != nil {
 		log.Errorf("Failed to generate sync token: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
+
+	// Store token metadata in database  
+	tokenHash := database.HashToken(syncToken)
+	serverAddress, serverPort := getServerAddress(c, appConfig)
+	
+	dbSyncToken := &models.SyncToken{
+		UserID:      currentUser.ID,
+		TokenID:     tokenID,
+		TokenHash:   tokenHash,
+		Name:        fmt.Sprintf("Mobile Sync - %s", time.Now().Format("Jan 2, 2006")),
+		Description: "Sync token for Health Wallet mobile app",
+		UserAgent:   userAgent,
+		IssuedAt:    now,
+		ExpiresAt:   expiresAt,
+		IsActive:    true,
+		IsRevoked:   false,
+		ServerName:  fmt.Sprintf("Fasten Health Server (%s:%s)", serverAddress, serverPort),
+		ServerHost:  serverAddress,
+		ServerPort:  serverPort,
+		Scopes:      "sync:read,sync:write",
+	}
+
+	err = databaseRepo.CreateSyncToken(c, dbSyncToken)
+	if err != nil {
+		log.Errorf("Failed to store sync token: %v", err)
+		// Still return the token even if storage fails
+	}
+
 	log.Debug("Successfully generated sync token")
 
-	// Get local IP address
-	ipAddress := appConfig.GetString("web.listen.external_host")
-	if ipAddress == "" {
-		addrs, err := net.InterfaceAddrs()
-		if err != nil {
-			log.Errorf("Failed to get local IP address: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get local IP address"})
-			return
-		}
-		log.Debug("Successfully retrieved network interfaces")
+	// Get multiple server addresses for network resilience
+	serverAddresses := getServerAddresses(c, appConfig)
+	primaryAddress, serverPort := getServerAddress(c, appConfig)
 
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"token":   syncToken,
+			"port":    serverPort,
+			"address": primaryAddress,
+			"addresses": serverAddresses, // Multiple addresses for network resilience
+			"serverInfo": gin.H{
+				"name":    "Fasten Health Server",
+				"version": "1.0.0",
+				"docker":  true,
+			},
+			"expiresAt": expiresAt.Format(time.RFC3339),
+			"tokenId":   tokenID,
+			// Additional fields for frontend compatibility
+			"serverName": fmt.Sprintf("Fasten Health Server (%s:%s)", primaryAddress, serverPort),
+		},
+	})
+}
+
+// getClientIP gets the client IP address
+func getClientIP(c *gin.Context) string {
+	if ip := c.GetHeader("X-Forwarded-For"); ip != "" {
+		return ip
+	}
+	if ip := c.GetHeader("X-Real-IP"); ip != "" {
+		return ip
+	}
+	return c.ClientIP()
+}
+
+// getServerAddress gets the server address and port, prioritizing non-local addresses
+func getServerAddress(c *gin.Context, appConfig config.Interface) (string, string) {
+	// Get the external port from environment variable or use default
+	externalPort := os.Getenv("FASTEN_EXTERNAL_PORT")
+	if externalPort == "" {
+		externalPort = "9090" // Default external port for Docker
+	}
+
+	// Priority 1: Environment variable override
+	if envHost := os.Getenv("FASTEN_EXTERNAL_HOST"); envHost != "" {
+		return envHost, externalPort
+	}
+
+	// Priority 2: Headers from reverse proxies
+	if forwardedHost := c.GetHeader("X-Forwarded-Host"); forwardedHost != "" {
+		if host, _, err := net.SplitHostPort(forwardedHost); err == nil {
+			return host, externalPort
+		}
+		return forwardedHost, externalPort
+	}
+	if realIP := c.GetHeader("X-Real-IP"); realIP != "" {
+		return realIP, externalPort
+	}
+
+	// Priority 3: Detect a private, non-loopback IP address
+	// In a Docker container, this will be the container's IP, which is not what we want.
+	// However, we will return all possible IPs in getServerAddresses, so the client can try them all.
+	// For the primary address, we'll prefer a private IP, but fallback gracefully.
+	if addrs, err := net.InterfaceAddrs(); err == nil {
 		for _, addr := range addrs {
 			if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-				if ipnet.IP.To4() != nil {
-					ipAddress = ipnet.IP.String()
-					break
+				if ip := ipnet.IP.To4(); ip != nil && ip.IsPrivate() {
+					return ip.String(), externalPort
 				}
 			}
 		}
 	}
 
-	port := appConfig.GetString("web.listen.port")
-	serverName := appConfig.GetString("web.server.name")
-	if serverName == "" {
-		serverName = fmt.Sprintf("Fasten Health Server (%s:%s)", ipAddress, port)
-	}
-
-	response := SyncTokenResponse{
-		Token:      syncToken,
-		Address:    ipAddress,
-		Port:       port,
-		ServerName: serverName,
-		CreatedAt:  now,
-		ExpiresAt:  expiresAt,
-	}
-
-	log.Debugf("Responding with sync data: token=%s, address=%s, port=%s, serverName=%s, expiresAt=%s", 
-		syncToken, ipAddress, port, serverName, expiresAt.Format(time.RFC3339))
-	
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    response,
-	})
+	// Final fallback to localhost
+	return "localhost", externalPort
 }
 
-// RevokeSync handles sync token revocation
-func RevokeSync(c *gin.Context) {
-	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
-	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
-
-	log.Debug("Attempting to revoke sync token")
-	currentUser, err := databaseRepo.GetCurrentUser(c)
-	if err != nil {
-		log.Errorf("Failed to get current user: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get current user"})
-		return
+// getServerAddresses returns multiple possible server addresses for network change resilience
+func getServerAddresses(c *gin.Context, appConfig config.Interface) []string {
+	port := os.Getenv("FASTEN_EXTERNAL_PORT")
+	if port == "" {
+		port = "9090" // Default external port for Docker
 	}
 
-	// In a more complete implementation, you would:
-	// 1. Add the token to a blacklist/revocation list
-	// 2. Store revoked tokens in database
-	// 3. Check token revocation in middleware
-	
-	log.Debugf("Sync token revoked for user: %s", currentUser.Username)
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Sync token revoked successfully",
-	})
-}
+	// Use a map to automatically handle uniqueness and a slice to maintain order
+	seen := make(map[string]bool)
+	var addresses []string
 
-// ValidateSync validates if a sync token is still valid
-func ValidateSync(c *gin.Context) {
-	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
-	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
-
-	log.Debug("Validating sync token")
-	currentUser, err := databaseRepo.GetCurrentUser(c)
-	if err != nil {
-		log.Errorf("Failed to get current user: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get current user"})
-		return
+	addAddress := func(addr string) {
+		if addr != "" && !seen[addr] {
+			seen[addr] = true
+			addresses = append(addresses, addr)
+		}
 	}
 
-	// Token validation is handled by JWT middleware
-	// If we reach here, token is valid
-	log.Debugf("Sync token is valid for user: %s", currentUser.Username)
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"valid":   true,
-		"user":    currentUser.Username,
-	})
+	// Priority 1: Environment variable override
+	if envHost := os.Getenv("FASTEN_EXTERNAL_HOST"); envHost != "" {
+		addAddress(fmt.Sprintf("%s:%s", envHost, port))
+	}
+
+	// Priority 2: Headers from reverse proxies
+	if forwardedHost := c.GetHeader("X-Forwarded-Host"); forwardedHost != "" {
+		if host, _, err := net.SplitHostPort(forwardedHost); err == nil {
+			addAddress(fmt.Sprintf("%s:%s", host, port))
+		} else {
+			addAddress(fmt.Sprintf("%s:%s", forwardedHost, port))
+		}
+	}
+	if realIP := c.GetHeader("X-Real-IP"); realIP != "" {
+		addAddress(fmt.Sprintf("%s:%s", realIP, port))
+	}
+
+	// Priority 3: All private, non-loopback IP addresses
+	if addrs, err := net.InterfaceAddrs(); err == nil {
+		for _, addr := range addrs {
+			if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+				if ip := ipnet.IP.To4(); ip != nil && ip.IsPrivate() {
+					addAddress(fmt.Sprintf("%s:%s", ip.String(), port))
+				}
+			}
+		}
+	}
+
+	// Final fallback to localhost
+	addAddress(fmt.Sprintf("localhost:%s", port))
+
+	return addresses
 }
+
 
 func SyncData(c *gin.Context) {
 	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
 	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
-	
+
 	// The JWT is passed in the Authorization header, so we can use the existing GetCurrentUser middleware
 	log.Debug("Attempting to get current user for sync data")
 	currentUser, err := databaseRepo.GetCurrentUser(c)
 	if err != nil {
 		log.Errorf("Failed to get current user: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get current user"})
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "Unauthorized"})
 		return
 	}
+
+	//get the token from the context
+	tokenString := c.MustGet(pkg.ContextKeyTypeAuthToken).(string)
+	tokenID, err := auth.GetTokenIDFromToken(tokenString)
+	if err != nil {
+		log.Errorf("Failed to get token ID from token: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get token ID"})
+		return
+	}
+
+	// Update token usage
+	err = databaseRepo.UpdateTokenUsage(c, currentUser.ID, tokenID)
+	if err != nil {
+		log.Errorf("Failed to update token usage: %v", err)
+		// Don't fail the request, just log the error
+	}
+
+	// Create device sync history
+	history := &models.DeviceSyncHistory{
+		UserID:    currentUser.ID,
+		TokenID:   tokenID,
+		DeviceID:  c.GetHeader("User-Agent"),
+		Success:   true,
+	}
+	err = databaseRepo.CreateDeviceSyncHistory(c, history)
+	if err != nil {
+		log.Errorf("Failed to create device sync history: %v", err)
+		// Don't fail the request, just log the error
+	}
+
 	log.Debug("Successfully retrieved user for sync data")
-	
-	// Check for If-None-Match header to prevent duplicate syncs
-	ifNoneMatch := c.GetHeader("If-None-Match")
-	
 	// an empty query will return all resources for the user
 	log.Debug("Querying all resources for user")
 	allResources := make([]interface{}, 0)
-	resourceCount := 0
-	
 	for _, resourceType := range databaseModel.GetAllowedResourceTypes() {
 		resources, err := databaseRepo.QueryResources(c, models.QueryResource{
 			From: resourceType,
@@ -181,32 +271,16 @@ func SyncData(c *gin.Context) {
 		if resources != nil {
 			for _, r := range resources.([]models.ResourceBase) {
 				allResources = append(allResources, r)
-				resourceCount++
 			}
 		}
 	}
 	log.Debugf("Successfully retrieved %d resources", len(allResources))
-
-	// Create ETag based on resource count and last updated time
-	lastUpdated, _ := databaseRepo.GetLastUpdatedTimestamp(c)
-	etag := fmt.Sprintf("W/\"%d-%s\"", resourceCount, lastUpdated)
-	
-	// Return 304 Not Modified if ETag matches
-	if ifNoneMatch == etag {
-		log.Debug("ETag matches, returning 304 Not Modified")
-		c.Status(http.StatusNotModified)
-		return
-	}
 
 	bundle := models.FhirBundle{
 		ResourceType: "Bundle",
 		Type:         "collection",
 		Total:        len(allResources),
 		Entry:        make([]models.BundleEntry, len(allResources)),
-		Meta: map[string]interface{}{
-			"lastUpdated": time.Now().Format(time.RFC3339),
-			"source":      fmt.Sprintf("Fasten Health Server"),
-		},
 	}
 
 	for i, resource := range allResources {
@@ -215,10 +289,6 @@ func SyncData(c *gin.Context) {
 		}
 	}
 
-	// Set ETag header
-	c.Header("ETag", etag)
-	c.Header("Cache-Control", "private, max-age=300") // 5 minutes cache
-	
 	// ---- ADD THIS CODE FOR DEBUGGING ----
 	bundleBytes, _ := json.MarshalIndent(bundle, "", "  ")
 	fmt.Println("--- BEGIN DEBUG BUNDLE ---")
@@ -227,6 +297,15 @@ func SyncData(c *gin.Context) {
 	// ------------------------------------
 
 	c.JSON(http.StatusOK, bundle)
+
+	// publish the event
+	// err = eventBus.PublishMessage(models.NewEvent(models.EventTypeSourceSyncComplete, gin.H{
+	// 	"success": true,
+	// 	"token_id": tokenID,
+	// }))
+	// if err != nil {
+	// 	log.Errorf("Failed to publish sync complete event: %v", err)
+	// }
 }
 
 func GetResourceTypes(c *gin.Context) {
@@ -271,13 +350,42 @@ func SyncDataUpdates(c *gin.Context) {
 	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
 
 	log.Debug("Attempting to get current user for sync data updates")
-	_, err := databaseRepo.GetCurrentUser(c)
+	currentUser, err := databaseRepo.GetCurrentUser(c)
 	if err != nil {
 		log.Errorf("Failed to get current user: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get current user"})
 		return
 	}
 	log.Debug("Successfully retrieved user for sync data updates")
+
+	//get the token from the context
+	tokenString := c.MustGet(pkg.ContextKeyTypeAuthToken).(string)
+	tokenID, err := auth.GetTokenIDFromToken(tokenString)
+	if err != nil {
+		log.Errorf("Failed to get token ID from token: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get token ID"})
+		return
+	}
+
+	// Update token usage
+	err = databaseRepo.UpdateTokenUsage(c, currentUser.ID, tokenID)
+	if err != nil {
+		log.Errorf("Failed to update token usage: %v", err)
+		// Don't fail the request, just log the error
+	}
+
+	// Create device sync history
+	history := &models.DeviceSyncHistory{
+		UserID:    currentUser.ID,
+		TokenID:   tokenID,
+		DeviceID:  c.GetHeader("User-Agent"),
+		Success:   true,
+	}
+	err = databaseRepo.CreateDeviceSyncHistory(c, history)
+	if err != nil {
+		log.Errorf("Failed to create device sync history: %v", err)
+		// Don't fail the request, just log the error
+	}
 
 	since := c.Query("since")
 	if since == "" {
@@ -348,60 +456,353 @@ func SyncDataUpdates(c *gin.Context) {
 	// ------------------------------------
 
 	c.JSON(http.StatusOK, bundle)
+
+	// publish the event
+	// err = eventBus.PublishMessage(models.NewEvent(models.EventTypeSourceSyncComplete, gin.H{
+	// 	"success": true,
+	// 	"token_id": tokenID,
+	// }))
+	// if err != nil {
+	// 	log.Errorf("Failed to publish sync complete event: %v", err)
+	// }
 }
 
-/*
-ROUTE ADDITIONS NEEDED:
+// GetSyncTokens returns sync tokens for current user (minimal implementation)
+func GetSyncTokens(c *gin.Context) {
+	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
+	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
 
-To support the new GitHub-like token management system, add these routes to your router:
+	currentUser, err := databaseRepo.GetCurrentUser(c)
+	if err != nil {
+		log.Errorf("Failed to get current user: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get current user"})
+		return
+	}
 
-// Existing routes:
-router.GET("/secure/sync/initiate", InitiateSync)
-router.GET("/secure/sync/data", SyncData)
-router.GET("/secure/sync/last-updated", GetLastUpdated)
-router.GET("/secure/sync/updates", SyncDataUpdates)
-router.GET("/secure/sync/resource-types", GetResourceTypes)
+	tokens, err := databaseRepo.GetUserSyncTokens(c, currentUser.ID)
+	if err != nil {
+		log.Errorf("Failed to get sync tokens: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get tokens"})
+		return
+	}
 
-// NEW routes to add:
-router.POST("/secure/sync/revoke", RevokeSync)           // Revoke sync token
-router.GET("/secure/sync/validate", ValidateSync)       // Validate sync token
+	// Convert to response format
+	var responseTokens []map[string]interface{}
+	for _, token := range tokens {
+		responseTokens = append(responseTokens, map[string]interface{}{
+			"tokenId":     token.TokenID,
+			"name":        token.Name,
+			"issuedAt":    token.IssuedAt,
+			"expiresAt":   token.ExpiresAt,
+			"useCount":    token.UseCount,
+			"isRevoked":   token.IsRevoked,
+		})
+	}
 
-MIDDLEWARE ENHANCEMENT:
-
-Consider adding token revocation checking to your JWT middleware:
-
-func JwtMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        // ... existing JWT validation ...
-        
-        // Add token revocation check here
-        // Check if token is in revoked tokens list/database
-        
-        c.Next()
-    }
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    responseTokens,
+	})
 }
 
-CONFIG ADDITIONS:
+// GetSyncHistory returns sync history for current user (minimal implementation)
+func GetSyncHistory(c *gin.Context) {
+	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
+	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
 
-Add these to your config file:
+	currentUser, err := databaseRepo.GetCurrentUser(c)
+	if err != nil {
+		log.Errorf("Failed to get current user: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get current user"})
+		return
+	}
 
-web:
-  server:
-    name: "Your Fasten Health Server"  # Used in sync token response
-  listen:
-    external_host: "your-server-ip"    # Optional: override IP detection
+	history, err := databaseRepo.GetUserSyncHistory(c, currentUser.ID, 50) // Limit to 50 entries
+	if err != nil {
+		log.Errorf("Failed to get sync history: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get history"})
+		return
+	}
 
-TOKEN EXPIRATION:
+	// Convert to response format
+	var events []map[string]interface{}
+	for _, event := range history {
+		events = append(events, map[string]interface{}{
+			"tokenId":   event.TokenID,
+			"eventType": event.EventType,
+			"eventTime": event.EventTime,
+			"success":   event.Success,
+			"errorMsg":  event.ErrorMsg,
+		})
+	}
 
-- Sync tokens now expire after 24 hours (configurable)
-- Frontend automatically handles token expiration
-- Users get warnings when tokens are about to expire
-- Tokens can be revoked from the user profile
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"events": events,
+		},
+	})
+}
 
-CACHING IMPROVEMENTS:
+// RevokeSync revokes sync tokens (minimal implementation)
+func RevokeSync(c *gin.Context) {
+	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
+	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
 
-- Added ETag support to prevent unnecessary data transfers
-- Added Cache-Control headers for better performance
-- Bundle metadata includes source information
+	currentUser, err := databaseRepo.GetCurrentUser(c)
+	if err != nil {
+		log.Errorf("Failed to get current user: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get current user"})
+		return
+	}
 
-*/
+	var revokeRequest struct {
+		TokenID *string `json:"tokenId,omitempty"`
+		All     bool    `json:"all,omitempty"`
+	}
+	
+	if err := c.ShouldBindJSON(&revokeRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid request format"})
+		return
+	}
+
+	revokedBy := fmt.Sprintf("user:%s", currentUser.Username)
+
+	if revokeRequest.All {
+		// Revoke all tokens for user
+		tokens, err := databaseRepo.GetUserSyncTokens(c, currentUser.ID)
+		if err != nil {
+			log.Errorf("Failed to get user tokens: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get tokens"})
+			return
+		}
+
+		revokedCount := 0
+		for _, token := range tokens {
+			if !token.IsRevoked {
+				if err := databaseRepo.RevokeSyncToken(c, token.TokenID, revokedBy); err == nil {
+					revokedCount++
+				}
+			}
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": fmt.Sprintf("Revoked %d sync tokens", revokedCount),
+		})
+		return
+	}
+
+	if revokeRequest.TokenID == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Token ID is required"})
+		return
+	}
+
+	err = databaseRepo.RevokeSyncToken(c, *revokeRequest.TokenID, revokedBy)
+	if err != nil {
+		log.Errorf("Failed to revoke sync token: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to revoke token"})
+		return
+	}
+	
+	log.Debugf("Sync token revoked: tokenId=%s by %s", *revokeRequest.TokenID, revokedBy)
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Sync token revoked successfully",
+	})
+}
+
+// RevokeAllSyncTokens revokes all sync tokens for the current user
+func RevokeAllSyncTokens(c *gin.Context) {
+	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
+	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
+
+	currentUser, err := databaseRepo.GetCurrentUser(c)
+	if err != nil {
+		log.Errorf("Failed to get current user: %v", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "Unauthorized"})
+		return
+	}
+
+	revokedBy := "user:" + currentUser.Username
+	err = databaseRepo.RevokeAllSyncTokens(c, currentUser.ID, revokedBy)
+	if err != nil {
+		log.Errorf("Failed to revoke all sync tokens: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to revoke all sync tokens"})
+		return
+	}
+
+	log.Infof("All sync tokens revoked for user %s", currentUser.Username)
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "All sync tokens revoked successfully"})
+}
+
+// DeleteSyncToken deletes a single sync token by tokenId
+func DeleteSyncToken(c *gin.Context) {
+	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
+	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
+
+	currentUser, err := databaseRepo.GetCurrentUser(c)
+	if err != nil {
+		log.Errorf("Failed to get current user: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get current user"})
+		return
+	}
+
+	var req struct {
+		TokenID string `json:"tokenId"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil || req.TokenID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Token ID is required"})
+		return
+	}
+
+	// Optionally, check that the token belongs to the user
+	tokens, err := databaseRepo.GetUserSyncTokens(c, currentUser.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get tokens"})
+		return
+	}
+	found := false
+	for _, t := range tokens {
+		if t.TokenID == req.TokenID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "error": "Token does not belong to user"})
+		return
+	}
+
+	err = databaseRepo.DeleteSyncToken(c, req.TokenID)
+	if err != nil {
+		log.Errorf("Failed to delete sync token: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to delete token"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Sync token deleted successfully"})
+}
+
+// DeleteAllSyncTokens deletes all sync tokens for the current user
+func DeleteAllSyncTokens(c *gin.Context) {
+	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
+	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
+
+	currentUser, err := databaseRepo.GetCurrentUser(c)
+	if err != nil {
+		log.Errorf("Failed to get current user: %v", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "Unauthorized"})
+		return
+	}
+
+	count, err := databaseRepo.DeleteAllSyncTokens(c, currentUser.ID)
+	if err != nil {
+		log.Errorf("Failed to delete all sync tokens: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to delete all sync tokens"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "All sync tokens deleted successfully", "count": count})
+}
+
+func GetSyncStatus(c *gin.Context) {
+	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
+	appConfig := c.MustGet(pkg.ContextKeyTypeConfig).(config.Interface)
+
+	log.Debug("Getting sync status")
+	
+	// Get server address and port
+	serverAddress, serverPort := getServerAddress(c, appConfig)
+	serverAddresses := getServerAddresses(c, appConfig)
+	
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"status":       "active",
+			"server_name":  fmt.Sprintf("Fasten Health Server (%s:%s)", serverAddress, serverPort),
+			"server_host":  serverAddress,
+			"server_port":  serverPort,
+			"server_addresses": serverAddresses, // Multiple addresses for network resilience
+			"api_version":  "v1",
+			"sync_enabled": true,
+			"endpoints": gin.H{
+				"initiate":  "/api/secure/sync/initiate",
+				"data":      "/api/secure/sync/data", 
+				"updates":   "/api/secure/sync/updates",
+				"tokens":    "/api/secure/sync/tokens",
+				"history":   "/api/secure/sync/history",
+				"revoke":    "/api/secure/sync/revoke",
+				"discovery": "/api/secure/sync/discovery",
+			},
+		},
+	})
+}
+
+// GetServerDiscovery returns all available server addresses for network resilience
+func GetServerDiscovery(c *gin.Context) {
+	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
+	appConfig := c.MustGet(pkg.ContextKeyTypeConfig).(config.Interface)
+
+	log.Debug("Getting server discovery information")
+	
+	serverAddresses := getServerAddresses(c, appConfig)
+	primaryAddress, serverPort := getServerAddress(c, appConfig)
+	
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"primary_address": primaryAddress,
+			"port":           serverPort,
+			"addresses":      serverAddresses,
+			"server_info": gin.H{
+				"name":    "Fasten Health Server",
+				"version": "1.0.0",
+				"docker":  true,
+			},
+			"network_info": gin.H{
+				"supports_network_changes": true,
+				"auto_reconnection":       true,
+				"fallback_addresses":      len(serverAddresses) > 1,
+			},
+		},
+	})
+}
+
+// GetDeviceSyncHistory returns device sync history for current user
+func GetDeviceSyncHistory(c *gin.Context) {
+	log := c.MustGet(pkg.ContextKeyTypeLogger).(*logrus.Entry)
+	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
+
+	currentUser, err := databaseRepo.GetCurrentUser(c)
+	if err != nil {
+		log.Errorf("Failed to get current user: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get current user"})
+		return
+	}
+
+	history, err := databaseRepo.GetUserDeviceSyncHistory(c, currentUser.ID, 50)
+	if err != nil {
+		log.Errorf("Failed to get device sync history: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get device sync history"})
+		return
+	}
+
+	var events []map[string]interface{}
+	for _, event := range history {
+		events = append(events, map[string]interface{}{
+			"deviceId": event.DeviceID,
+			"tokenId": event.TokenID,
+			"eventTime": event.EventTime,
+			"success": event.Success,
+			"userAgent": event.UserAgent,
+			"dataVolume": event.DataVolume,
+			"errorMsg": event.ErrorMsg,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"events": events,
+		},
+	})
+}
