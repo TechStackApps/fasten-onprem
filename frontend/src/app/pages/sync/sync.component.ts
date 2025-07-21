@@ -72,9 +72,9 @@ export class SyncComponent implements OnInit, OnDestroy {
   generateToken(): void {
     this.isLoading = true;
     this.hasError = false;
-    
+
     const token = localStorage.getItem('token');
-    
+
     this.http.get<any>('/api/secure/sync/initiate', {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
@@ -83,12 +83,12 @@ export class SyncComponent implements OnInit, OnDestroy {
           // Get current host for QR code
           const currentHost = window.location.hostname;
           const currentPort = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
-          
+
           // Get multiple server addresses from backend response
           const serverAddresses = response.data.addresses || [`${currentHost}:${response.data.port || currentPort}`];
           const primaryAddress = response.data.address || currentHost;
           const serverPort = response.data.port || currentPort;
-          
+
           const qrData = JSON.stringify({
             token: response.data.token,
             port: serverPort,
@@ -118,12 +118,12 @@ export class SyncComponent implements OnInit, OnDestroy {
               scopes: ['sync:read', 'sync:write'],
             }
           }, null, 2);
-          
+
           console.log('QR Code Data:', qrData);
           console.log('QR Code Data Length:', qrData.length);
-          
+
           this.qrCodeRaw = qrData;
-          
+
           // Add error handling and debugging for QR code generation
           try {
             QRCode.toDataURL(qrData, {
@@ -147,7 +147,7 @@ export class SyncComponent implements OnInit, OnDestroy {
             console.error('QR Code generation caught error:', error);
             this.setError('Failed to generate QR code: ' + (error as Error).message);
           }
-          
+
           this.loadTokens(); // Refresh token list
         } else {
           this.setError('Failed to generate token');
@@ -164,7 +164,7 @@ export class SyncComponent implements OnInit, OnDestroy {
 
   loadTokens(): void {
     const token = localStorage.getItem('token');
-    
+
     this.http.get<any>('/api/secure/sync/tokens', {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
@@ -179,7 +179,7 @@ export class SyncComponent implements OnInit, OnDestroy {
 
   loadHistory(): void {
     const token = localStorage.getItem('token');
-    
+
     this.http.get<any>('/api/secure/sync/history', {
       headers: { Authorization: `Bearer ${token}` }
     }).subscribe({
@@ -208,9 +208,9 @@ export class SyncComponent implements OnInit, OnDestroy {
 
   revokeToken(tokenId: string): void {
     const token = localStorage.getItem('token');
-    
-    this.http.post<any>('/api/secure/sync/revoke', 
-      { tokenId }, 
+
+    this.http.post<any>('/api/secure/sync/revoke',
+      { tokenId },
       { headers: { Authorization: `Bearer ${token}` } }
     ).subscribe({
       next: () => {
@@ -225,9 +225,9 @@ export class SyncComponent implements OnInit, OnDestroy {
 
   revokeAllTokens(): void {
     const token = localStorage.getItem('token');
-    
-    this.http.post<any>('/api/secure/sync/revoke', 
-      { all: true }, 
+
+    this.http.post<any>('/api/secure/sync/revoke',
+      { all: true },
       { headers: { Authorization: `Bearer ${token}` } }
     ).subscribe({
       next: () => {

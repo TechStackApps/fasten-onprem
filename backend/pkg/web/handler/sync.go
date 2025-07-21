@@ -34,14 +34,14 @@ func InitiateSync(c *gin.Context) {
 	}
 	log.Debugf("Successfully retrieved user: %s", currentUser.Username)
 
-	// Generate unique token ID  
+	// Generate unique token ID
 	tokenIDBytes := make([]byte, 16)
 	rand.Read(tokenIDBytes)
 	tokenID := hex.EncodeToString(tokenIDBytes)
 
 	// Get client info
 	userAgent := c.GetHeader("User-Agent")
-	
+
 	// Generate sync token with 24-hour expiration
 	now := time.Now()
 	expiresAt := now.Add(24 * time.Hour)
@@ -53,10 +53,10 @@ func InitiateSync(c *gin.Context) {
 		return
 	}
 
-	// Store token metadata in database  
+	// Store token metadata in database
 	tokenHash := database.HashToken(syncToken)
 	serverAddress, serverPort := getServerAddress(c, appConfig)
-	
+
 	dbSyncToken := &models.SyncToken{
 		UserID:      currentUser.ID,
 		TokenID:     tokenID,
@@ -297,15 +297,6 @@ func SyncData(c *gin.Context) {
 	// ------------------------------------
 
 	c.JSON(http.StatusOK, bundle)
-
-	// publish the event
-	// err = eventBus.PublishMessage(models.NewEvent(models.EventTypeSourceSyncComplete, gin.H{
-	// 	"success": true,
-	// 	"token_id": tokenID,
-	// }))
-	// if err != nil {
-	// 	log.Errorf("Failed to publish sync complete event: %v", err)
-	// }
 }
 
 func GetResourceTypes(c *gin.Context) {
@@ -560,7 +551,7 @@ func RevokeSync(c *gin.Context) {
 		TokenID *string `json:"tokenId,omitempty"`
 		All     bool    `json:"all,omitempty"`
 	}
-	
+
 	if err := c.ShouldBindJSON(&revokeRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid request format"})
 		return
@@ -604,7 +595,7 @@ func RevokeSync(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to revoke token"})
 		return
 	}
-	
+
 	log.Debugf("Sync token revoked: tokenId=%s by %s", *revokeRequest.TokenID, revokedBy)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -709,11 +700,11 @@ func GetSyncStatus(c *gin.Context) {
 	appConfig := c.MustGet(pkg.ContextKeyTypeConfig).(config.Interface)
 
 	log.Debug("Getting sync status")
-	
+
 	// Get server address and port
 	serverAddress, serverPort := getServerAddress(c, appConfig)
 	serverAddresses := getServerAddresses(c, appConfig)
-	
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
@@ -726,7 +717,7 @@ func GetSyncStatus(c *gin.Context) {
 			"sync_enabled": true,
 			"endpoints": gin.H{
 				"initiate":  "/api/secure/sync/initiate",
-				"data":      "/api/secure/sync/data", 
+				"data":      "/api/secure/sync/data",
 				"updates":   "/api/secure/sync/updates",
 				"tokens":    "/api/secure/sync/tokens",
 				"history":   "/api/secure/sync/history",
@@ -743,10 +734,10 @@ func GetServerDiscovery(c *gin.Context) {
 	appConfig := c.MustGet(pkg.ContextKeyTypeConfig).(config.Interface)
 
 	log.Debug("Getting server discovery information")
-	
+
 	serverAddresses := getServerAddresses(c, appConfig)
 	primaryAddress, serverPort := getServerAddress(c, appConfig)
-	
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
