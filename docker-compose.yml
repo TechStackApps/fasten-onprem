@@ -15,3 +15,10 @@ services:
     volumes:
       - ./db:/opt/fasten/db
 #      - ./config.example.yaml:/opt/fasten/config/config.yaml
+  ocr-service:
+    build:
+      context: ./ocr-service
+      dockerfile: Dockerfile
+    ports:
+      - "9091:8080"
+    restart: unless-stopped
