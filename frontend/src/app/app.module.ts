@@ -42,6 +42,7 @@ import {ShowFirstRunWizardGuard} from './auth-guards/show-first-run-wizard-guard
 import { IconsModule } from './icon-module';
 import { UserListComponent } from './pages/user-list/user-list.component';
 import { PractitionerHistoryComponent } from './pages/practitioner-history/practitioner-history.component';
+import { ResourceOcrComponent } from './pages/resource-ocr/resource-ocr.component';
 
 @NgModule({
   declarations: [
@@ -64,6 +65,7 @@ import { PractitionerHistoryComponent } from './pages/practitioner-history/pract
     AuthSignupWizardComponent,
     UserListComponent,
     PractitionerHistoryComponent,
+    ResourceOcrComponent,
   ],
   imports: [
     FormsModule,

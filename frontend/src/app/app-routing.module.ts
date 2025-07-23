@@ -27,8 +27,7 @@ import { PractitionerCreateComponent } from './pages/practitioner-create/practit
 import { PractitionerViewComponent } from './pages/practitioner-view/practitioner-view.component';
 import { PractitionerEditPageComponent } from './pages/practitioner-edit/practitioner-edit.component';
 import { PractitionerHistoryComponent } from "./pages/practitioner-history/practitioner-history.component";
-
-
+import { ResourceOcrComponent } from "./pages/resource-ocr/resource-ocr.component";
 
 const routes: Routes = [
 
@@ -51,6 +50,8 @@ const routes: Routes = [
   { path: 'sources', component: MedicalSourcesComponent, canActivate: [ IsAuthenticatedAuthGuard] },
   { path: 'sources/callback/:state', component: MedicalSourcesComponent, canActivate: [ IsAuthenticatedAuthGuard] },
   { path: 'resource/create', component: ResourceCreatorComponent, canActivate: [ IsAuthenticatedAuthGuard] },
+
+  { path: 'resource/ocr-scan', component: ResourceOcrComponent, canActivate: [ IsAuthenticatedAuthGuard] },
 
   { path: 'desktop/callback/:state', component: DesktopCallbackComponent, canActivate: [ IsAuthenticatedAuthGuard] },
 
