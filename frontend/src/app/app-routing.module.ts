@@ -22,6 +22,7 @@ import { ResourceDetailComponent } from './pages/resource-detail/resource-detail
 import { SourceDetailComponent } from './pages/source-detail/source-detail.component';
 import { UserCreateComponent } from './pages/user-create/user-create.component';
 import { UserListComponent } from './pages/user-list/user-list.component';
+import { ResourceOcrComponent } from "./pages/resource-ocr/resource-ocr.component";
 
 const routes: Routes = [
 
@@ -44,6 +45,8 @@ const routes: Routes = [
   { path: 'sources', component: MedicalSourcesComponent, canActivate: [ IsAuthenticatedAuthGuard] },
   { path: 'sources/callback/:state', component: MedicalSourcesComponent, canActivate: [ IsAuthenticatedAuthGuard] },
   { path: 'resource/create', component: ResourceCreatorComponent, canActivate: [ IsAuthenticatedAuthGuard] },
+
+  { path: 'resource/ocr-scan', component: ResourceOcrComponent, canActivate: [ IsAuthenticatedAuthGuard] },
 
   { path: 'desktop/callback/:state', component: DesktopCallbackComponent, canActivate: [ IsAuthenticatedAuthGuard] },
 
