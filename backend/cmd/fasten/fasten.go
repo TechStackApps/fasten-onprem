@@ -11,6 +11,7 @@ import (
 	"github.com/fastenhealth/fasten-onprem/backend/pkg/version"
 	"github.com/fastenhealth/fasten-onprem/backend/pkg/web"
 	"github.com/fastenhealth/fasten-onprem/backend/resources"
+	"github.com/hashicorp/mdns"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"io"
@@ -123,6 +124,15 @@ func main() {
 						EventBus:        event_bus.NewEventBusServer(appLogger),
 						RelatedVersions: relatedVersions,
 					}
+
+					// Register mDNS service
+					go func() {
+						err := registerMDNS(appLogger, appconfig.GetInt("web.listen.port"))
+						if err != nil {
+							appLogger.Errorf("Failed to register mDNS service: %v", err)
+						}
+					}()
+
 					return webServer.Start()
 				},
 
@@ -217,7 +227,6 @@ func CreateLogger(appConfig config.Interface) (*logrus.Entry, *os.File, error) {
 	logger := logrus.WithFields(logrus.Fields{
 		"type": "web",
 	})
-	//set default log level
 	if level, err := logrus.ParseLevel(appConfig.GetString("log.level")); err == nil {
 		logger.Logger.SetLevel(level)
 	} else {
@@ -235,4 +244,27 @@ func CreateLogger(appConfig config.Interface) (*logrus.Entry, *os.File, error) {
 		logger.Logger.SetOutput(io.MultiWriter(os.Stderr, logFile))
 	}
 	return logger, logFile, nil
+}
+
+func registerMDNS(logger *logrus.Entry, port int) error {
+	host, err := os.Hostname()
+	if err != nil {
+		return fmt.Errorf("failed to get hostname: %w", err)
+	}
+
+	service, err := mdns.NewMDNSService(host, "_fasten-sync._tcp", "", "", port, nil, []string{"Fasten On-Prem Sync"})
+	if err != nil {
+		return fmt.Errorf("failed to create mDNS service: %w", err)
+	}
+
+	server, err := mdns.NewServer(&mdns.Config{Zone: service})
+	if err != nil {
+		return fmt.Errorf("failed to create mDNS server: %w", err)
+	}
+	defer server.Shutdown()
+
+	logger.Infof("mDNS service registered: %s._fasten-sync._tcp.local at port %d", host, port)
+
+	// Keep the function running
+	select {}
 }
