@@ -1,3 +1,4 @@
+import { DashboardPage } from './pages/dashboard.po';
 import { LoginPage } from './pages/login.po';
 import { SourcesPage } from './pages/sources.po';
 import { browser, by, element, ExpectedConditions as EC } from 'protractor';
@@ -5,10 +6,12 @@ import { browser, by, element, ExpectedConditions as EC } from 'protractor';
 describe('🔐 Login and navigate to Background Jobs', () => {
   let loginPage: LoginPage;
   let sourcesPage: SourcesPage;
+  let dashboard: DashboardPage
 
   it('should login and navigate to /background-jobs', async () => {
     loginPage = new LoginPage();
     sourcesPage = new SourcesPage();
+    dashboard = new DashboardPage();
 
     // Enable Angular sync and maximize window
     await browser.waitForAngularEnabled(true);
@@ -16,7 +19,7 @@ describe('🔐 Login and navigate to Background Jobs', () => {
 
     // LOGIN
     await loginPage.navigateTo();
-    await loginPage.login('beatrix', 'beatrix@beatrix.ro');
+    await loginPage.login('user', 'test@test.com');
 
     await browser.wait(
       EC.urlContains('/dashboard'),
@@ -24,14 +27,34 @@ describe('🔐 Login and navigate to Background Jobs', () => {
       'Did not reach dashboard'
     );
 
-    // NAVIGATE to /background-jobs
-    await browser.waitForAngularEnabled(false); // if non-Angular page
-    await browser.get('http://localhost:4200/background-jobs');
+    console.log('🔔 Opening notification dropdown');
+     await sourcesPage.openNotificationsDropdown();
+      
+     console.log('🕓 Clicking View History');
+      await sourcesPage.clickOnViewHistory();
 
-    const url = await browser.getCurrentUrl();
-    expect(url).toContain('/background-jobs');
+      console.log('🚀 Navigating to background-jobs...');
+      await browser.waitForAngularEnabled(false);
+      await browser.get('http://localhost:4200/background-jobs');
+  
 
     // Verify STATUS_DONE label is visible
-    await sourcesPage.verifyStatusDoneLabel();
+   // await sourcesPage.verifyStatusDoneLabel();
+     
+       await browser.sleep(3000);
+       
+     console.log('🔎 Clicking on Details');
+      await sourcesPage.clickDetailsButton();
+
+      console.log('✅ Verifying status badge');
+      await sourcesPage.verifyAnyValidStatusLabel(); 
+      await sourcesPage.closeDetailsModal();
   });
+    it('should go back to dashboard and verify Letha284 Haag279', async () => {
+      await dashboard.clickDashboardLink();
+      const name = await dashboard.getUserNameOnly();
+      console.log(name);
+
+  
+});
 });

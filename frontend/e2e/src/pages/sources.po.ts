@@ -4,9 +4,9 @@ export class SourcesPage {
 
   // ELEMENT GETTERS – used for consistency and easy test access
 
-  getSourcesLink(): ElementFinder {
-    return element(by.css('a[href="/sources"]'));
-  }
+ getSourcesLink(): ElementFinder {
+  return element.all(by.css('a[href="/sources"]')).first();
+}
 
   getFileInput(): ElementFinder {
     return element(by.css('ngx-dropzone input[type="file"]'));
@@ -21,9 +21,8 @@ export class SourcesPage {
   }
 
 getDetailsButton(): ElementFinder {
-  return element(by.css("tbody > tr:nth-of-type(1) .btn"));
+  return element(by.css('tbody > tr:nth-of-type(1) .btn'));
 }
-
   getToastSuccess(): ElementFinder {
     return element(by.css('.toast-success'));
   }
@@ -41,7 +40,12 @@ getDetailsButton(): ElementFinder {
       const text = await el.getText();
       return text === 'STATUS_LOCKED' || text === 'STATUS_DONE';
     }).first();
-  }
+  
+    } 
+   getCloseDetailsModalButton(): ElementFinder {
+  return element(by.buttonText('Close'));
+}
+  
 
   // ACTION METHODS – used to interact with the page
 
@@ -62,9 +66,11 @@ getDetailsButton(): ElementFinder {
    */
   async uploadFile(filePath: string): Promise<void> {
     const fileInput = this.getFileInput();
-
-    await browser.wait(EC.presenceOf(fileInput), 5000, 'File input not present');
     await fileInput.sendKeys(filePath);
+
+    await browser.sleep(3000);
+
+  
   }
 
   /**
@@ -97,8 +103,21 @@ getDetailsButton(): ElementFinder {
   /**
    * Clicks on the "Details" button
    */
-  async clickDetailsButton(): Promise<void> {
+   async clickDetailsButton(): Promise<void> {
   const button = this.getDetailsButton();
+
+  await browser.wait(
+    EC.visibilityOf(button),
+    10000,
+    'Details button is not visible on the /background-jobs page'
+  );
+
+  await browser.wait(
+    EC.elementToBeClickable(button),
+    10000,
+   'Details button is not clickable'
+  );
+
   await button.click();
 }
 
@@ -131,6 +150,7 @@ getDetailsButton(): ElementFinder {
     const text = await label.getText();
     expect(['STATUS_LOCKED', 'STATUS_DONE']).toContain(text);
   }
+  
 
   /**
    * Verifies that a STATUS_DONE label is visible and correct
@@ -143,5 +163,13 @@ getDetailsButton(): ElementFinder {
     const text = await label.getText();
     expect(text).toBe('STATUS_DONE');
   }
+  
+
+ async closeDetailsModal(): Promise<void> {
+  const closeBtn = this.getCloseDetailsModalButton();
+  await browser.wait(EC.visibilityOf(closeBtn), 5000, 'Close button not visible');
+  await browser.wait(EC.elementToBeClickable(closeBtn), 5000, 'Close button not clickable');
+  await closeBtn.click();
+}
 
 }

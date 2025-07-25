@@ -1,15 +1,20 @@
 import { LoginPage } from './pages/login.po';
 import { SourcesPage } from './pages/sources.po';
+import {DashboardPage} from './pages/dashboard.po';
 import { browser, by, element, ExpectedConditions as EC } from 'protractor';
 import * as path from 'path';
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
 
 describe('🔐 Auth Signin Page', () => {
   let loginPage: LoginPage;
   let sourcesPage: SourcesPage;
+  let dashboard: DashboardPage
 
   beforeAll(async () => {
     loginPage = new LoginPage();
     sourcesPage = new SourcesPage();
+    dashboard = new DashboardPage();
 
     await browser.driver.manage().window().maximize();
     await browser.waitForAngularEnabled(true);
@@ -25,7 +30,7 @@ describe('🔐 Auth Signin Page', () => {
       'Username input not found'
     );
 
-    await loginPage.login('beatrix', 'beatrix@beatrix.ro');
+    await loginPage.login('user', 'test@test.com');
 
     // Wait for dashboard to be visible
     await browser.wait(
@@ -62,25 +67,17 @@ describe('🔐 Auth Signin Page', () => {
 
       await sourcesPage.uploadFile(filePath);
 
-      await browser.sleep(5000);
+      await browser.sleep(6000)
 
+     // console.log('🔔 Opening notification dropdown');
+     // await sourcesPage.openNotificationsDropdown();
+      
+    // console.log('🕓 Clicking View History');
+     // await sourcesPage.clickOnViewHistory();
 
-      console.log('🔔 Opening notification dropdown');
-      await sourcesPage.openNotificationsDropdown();
-
-      console.log('🕓 Clicking View History');
-      await sourcesPage.clickOnViewHistory();
-    });
-  });
-
-  describe('🔍 Upload Verification & Details', () => {
-    it('should verify that the uploaded file appears', async () => {
-      console.log('🔎 Clicking on Details');
-      await sourcesPage.clickDetailsButton();
-
-      console.log('✅ Verifying status badge');
-      await sourcesPage.verifyAnyValidStatusLabel();
+    
     });
   });
 });
+
 

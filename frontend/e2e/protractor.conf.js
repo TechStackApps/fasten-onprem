@@ -10,12 +10,15 @@ const { SpecReporter } = require('jasmine-spec-reporter');
 exports.config = {
   allScriptsTimeout: 11000,
   specs: [
-    './src/**/*.e2e-spec.ts'
+    './src/dashboard.e2e-spec.ts',
+  './src/backGroundJobHistory.e2e-spec.ts'
   ],
+  
   capabilities: {
     browserName: 'chrome',
     chromeOptions: {
       args: [
+        //'--headless',
         '--disable-infobars',
         '--no-sandbox',
         '--disable-dev-shm-usage',
@@ -24,7 +27,7 @@ exports.config = {
       ]
     }
   },
-  // aici specifici explicit driverul Chrome, dacă nu e în PATH
+  
   chromeDriver: '../chromedriver-win64/chromedriver.exe',
 
   directConnect: true,
