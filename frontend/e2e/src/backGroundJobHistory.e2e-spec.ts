@@ -18,10 +18,6 @@ describe('🔐 Login and navigate to Background Jobs', () => {
     await browser.driver.manage().window().maximize();
 
     // LOGIN
-<<<<<<< HEAD
-=======
-    await browser.sleep(5000);
->>>>>>> main
     await loginPage.navigateTo();
     await loginPage.login('user', 'test@test.com');
 
@@ -37,27 +33,19 @@ describe('🔐 Login and navigate to Background Jobs', () => {
      console.log('🕓 Clicking View History');
       await sourcesPage.clickOnViewHistory();
 
-<<<<<<< HEAD
-      console.log('🚀 Navigating to background-jobs...');
-      await browser.waitForAngularEnabled(false);
-      await browser.get('http://localhost:4200/background-jobs');
-=======
+
      // console.log('🚀 Navigating to background-jobs...');
      // await browser.waitForAngularEnabled(false);
     //  await browser.get('http://localhost:4200/background-jobs');
->>>>>>> main
+
   
 
     // Verify STATUS_DONE label is visible
    // await sourcesPage.verifyStatusDoneLabel();
      
-<<<<<<< HEAD
-       await browser.sleep(3000);
-=======
       // await browser.sleep(3000);
 
       await browser.waitForAngularEnabled(false);
->>>>>>> main
        
      console.log('🔎 Clicking on Details');
       await sourcesPage.clickDetailsButton();
@@ -68,13 +56,8 @@ describe('🔐 Login and navigate to Background Jobs', () => {
   });
     it('should go back to dashboard and verify Letha284 Haag279', async () => {
       await dashboard.clickDashboardLink();
-<<<<<<< HEAD
-      const name = await dashboard.getUserNameOnly();
-      console.log(name);
-=======
      // const name = await dashboard.getUserNameOnly();
       //console.log(name);
->>>>>>> main
 
   
 });
