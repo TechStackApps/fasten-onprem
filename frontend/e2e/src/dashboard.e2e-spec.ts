@@ -67,6 +67,7 @@ describe('🔐 Auth Signin Page', () => {
 
       await sourcesPage.uploadFile(filePath);
 
+<<<<<<< HEAD
       await browser.sleep(6000)
 
      // console.log('🔔 Opening notification dropdown');
@@ -74,6 +75,15 @@ describe('🔐 Auth Signin Page', () => {
       
     // console.log('🕓 Clicking View History');
      // await sourcesPage.clickOnViewHistory();
+=======
+      //await browser.sleep(6000)
+
+     //console.log('🔔 Opening notification dropdown');
+     // await sourcesPage.openNotificationsDropdown();
+      
+     // console.log('🕓 Clicking View History');
+      //await sourcesPage.clickOnViewHistory();
+>>>>>>> main
 
     
     });
