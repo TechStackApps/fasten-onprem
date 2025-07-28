@@ -43,6 +43,9 @@ import { IconsModule } from './icon-module';
 import { UserListComponent } from './pages/user-list/user-list.component';
 import { PractitionerHistoryComponent } from './pages/practitioner-history/practitioner-history.component';
 import { ResourceOcrComponent } from './pages/resource-ocr/resource-ocr.component';
+import { PdfOcrComponent } from './pages/resource-ocr/pdf-ocr/pdf-ocr.component';
+import { ImageOcrComponent } from './pages/resource-ocr/image-ocr/image-ocr.component';
+import { CameraOcrComponent } from './pages/resource-ocr/camera-ocr/camera-ocr.component';
 
 @NgModule({
   declarations: [
@@ -66,6 +69,9 @@ import { ResourceOcrComponent } from './pages/resource-ocr/resource-ocr.componen
     UserListComponent,
     PractitionerHistoryComponent,
     ResourceOcrComponent,
+    PdfOcrComponent,
+    ImageOcrComponent,
+    CameraOcrComponent,
   ],
   imports: [
     FormsModule,
