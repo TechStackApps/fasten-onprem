@@ -1,4 +1,7 @@
-import { element, by, ElementFinder, browser, ExpectedConditions as EC } from 'protractor';
+import {protractor, element, by, ElementFinder, browser, ExpectedConditions as EC } from 'protractor';
+import * as fs from 'fs';
+import * as path from 'path';
+
 
 export class MedicalHistoryPage {
 
@@ -69,20 +72,89 @@ async clickSubmitButton(): Promise<void> {
 }
 
 async typeSurgeryOrImplant(text: string): Promise<void> {
-  const input = element.all(by.css("input[placeholder='Search'][role='combobox']")).first();
+  const input = element(by.css("input[placeholder='Search'][role='combobox']"));
   await this.typeIntoElement(input, text);
 }
 
 async clickAddSurgeryOrImplantButton(): Promise<void> {
-  await this.clickElement('.btn-outline-indigo');
+  const button = element(by.buttonText('Add Surgery or Implant'));
+  await browser.wait(EC.elementToBeClickable(button), 5000, 'Button not clickable');
+  await button.click();
+}
+
+async typeDate(date: string): Promise<void> {
+  await this.typeIntoInput('input[placeholder="yyyy-mm-dd"]', date);
+}
+
+async typeDescription(message: string): Promise<void> {
+  await this.typeIntoInput('textarea[formcontrolname="comment"]', message);
+}
+
+async addNewAttachment(): Promise<void> {
+  const attachButton = element(by.xpath("//button[.//i[contains(@class, 'fa-paperclip')]]"));
+
+  await browser.wait(EC.presenceOf(attachButton), 5000, 'Attach button not present');
+  await browser.wait(EC.visibilityOf(attachButton), 5000, 'Attach button not visible');
+
+  await browser.executeScript('arguments[0].scrollIntoView(true);', attachButton.getWebElement());
+  await browser.wait(EC.elementToBeClickable(attachButton), 5000, 'Attach button not clickable');
+
+  await attachButton.click();
+}
+
+async typeNewAttachmentTitle(text: string): Promise<void> {
+  await this.typeIntoInput('input[formcontrolname="name"]', text);
+}
+
+async categorySearchNewAttachment(text: string): Promise<void> {
+  const input = element(by.css('app-nlm-typeahead[formcontrolname="category"] input[placeholder="Search"]'));
+
+  await browser.wait(EC.presenceOf(input), 10000, '⚠️ Category input not present');
+  await browser.wait(EC.elementToBeClickable(input), 5000, '⚠️ Category input not clickable');
+
+  await input.clear();
+  await input.sendKeys(text);
+  await input.sendKeys(protractor.Key.ENTER);
+}
+
+async typeNewAttachmentFileType(text: string): Promise<void> {
+  const input = element(by.css('app-nlm-typeahead[formcontrolname="file_type"] input[placeholder="Search"]'));
+
+  await browser.wait(EC.presenceOf(input), 10000, '⚠️ File type input not present');
+  await browser.wait(EC.elementToBeClickable(input), 5000, '⚠️ File type input not clickable');
+
+  await input.clear();
+  await input.sendKeys(text);
+  await input.sendKeys(protractor.Key.ENTER);
+}
+
+async uploadAttachment(): Promise<void> {
+  const filePath = path.resolve(__dirname, '../data/example_client.json');
+  const fileInput = element(by.css('#customFile'));
+
+  await browser.wait(EC.presenceOf(fileInput), 5000);
+  await browser.executeScript('arguments[0].style.display = "block";', fileInput.getWebElement());
+  await fileInput.sendKeys(filePath);
+}
+
+async clickCreateAttachmentButton(): Promise<void> {
+  const button = element(by.buttonText('Create Attachment'));
+
+  await browser.wait(EC.elementToBeClickable(button), 5000, '⚠️ Create Attachment button not clickable');
+  await button.click();
+}
+
+async clickSaveButton(): Promise<void> {
+  const button = element(by.buttonText('Save'));
+  await browser.wait(EC.elementToBeClickable(button), 10000);
+  await button.click();
 }
 
 
 
 
 
-
-  async clickMedicalHistoryLink(): Promise<void> {
+async clickMedicalHistoryLink(): Promise<void> {
     const link = this.getMedicalHistoryLink();
     await browser.wait(EC.elementToBeClickable(link), 5000);
     await link.click();
@@ -173,6 +245,188 @@ async clickProceduresTab(): Promise<void> {
   await browser.wait(EC.elementToBeClickable(tab), 5000);
   await tab.click();
 }
+
+////////// Practitioners page
+
+async clickPractitioners(): Promise<void> {
+  const practitionerTab = element(by.cssContainingText('.nav-link', 'Practitioners'));
+  await browser.wait(EC.elementToBeClickable(practitionerTab), 10000, 'Practitioners tab not clickable');
+  await practitionerTab.click();
+}
+
+async clickAddPractitionerButton(): Promise<void> {
+  const addButton = element(by.buttonText('Add Practitioner'));
+  await browser.wait(EC.elementToBeClickable(addButton), 10000, 'Add Practitioner button not clickable');
+  await addButton.click();
+}
+
+async typePractitionerName(text: string): Promise<void> {
+  await this.typeIntoInput(".tab-pane [formcontrolname='data'] > [placeholder='Search']", text);
+}
+
+async typePractitionerType(text: string): Promise<void> {
+  await this.typeIntoInput('app-nlm-typeahead[formcontrolname="profession"] input', text);
+}
+
+async typePractitionerTelephone(text: string): Promise<void> {
+  await this.typeIntoInput('input[formcontrolname="phone"]', text);
+}
+
+async typePractitionerFax(text: string): Promise<void> {
+  await this.typeIntoInput('input[formcontrolname="fax"]', text);
+}
+
+async typePractitionerEmail(text: string): Promise<void> {
+  await this.typeIntoInput('input[formcontrolname="email"]', text);
+}
+
+async typePractitionerAddressLine1(text: string): Promise<void> {
+  await this.typeIntoInput('input[formcontrolname="line1"]', text);
+}
+
+async typePractitionerCity(text: string): Promise<void> {
+  await this.typeIntoInput('input[formcontrolname="city"]', text);
+}
+
+async typePractitionerState(text: string): Promise<void> {
+  await this.typeIntoInput('input[formcontrolname="state"]', text);
+}
+
+async typePractitionerZip(text: string): Promise<void> {
+  await this.typeIntoInput('input[formcontrolname="zip"]', text);
+}
+
+async typePractitionerCountry(text: string): Promise<void> {
+  const input = element(by.css('app-nlm-typeahead[formcontrolname="country"] input[placeholder="Search"]'));
+
+  await this.typeIntoInput('app-nlm-typeahead[formcontrolname="country"] input[placeholder="Search"]', text);
+  await browser.sleep(300);
+  await input.sendKeys(protractor.Key.ENTER);
+}
+
+async createAddPractitionerButton(): Promise<void> {
+  await this.clickElement('.modal-footer .btn.btn-az-primary');
+
+}
+
+////////// ////////// Organizations page
+
+async clickOrganizations(): Promise<void> {
+  const organizationsTab = element(by.cssContainingText('.nav-link', 'Organizations'));
+  await browser.wait(EC.elementToBeClickable(organizationsTab), 10000, 'Organizations tab not clickable');
+  await organizationsTab.click();
+}
+
+async clickAddOrganizationButton(): Promise<void> {
+  const button = element(by.buttonText('Add Organization'));
+  await browser.wait(EC.elementToBeClickable(button), 10000, 'Add Organization button is not clickable');
+  await button.click();
+}
+
+async typeOrganizationType(text: string): Promise<void> {
+  const inputSelector = 'app-nlm-typeahead[formcontrolname="type"] input';
+  const input = element(by.css(inputSelector));
+
+  await this.typeIntoInput(inputSelector, text);
+  await browser.sleep(300);
+  await input.sendKeys(protractor.Key.ENTER);
+}
+
+////////// ////////// Lab Results page
+
+async clickLabResults(): Promise<void> {
+  const practitionerTab = element(by.cssContainingText('.nav-link', ' Lab Results '));
+  await browser.wait(EC.elementToBeClickable(practitionerTab), 10000, ' Lab Results tab not clickable');
+  await practitionerTab.click();
+}
+
+async clickCreateLabResult(): Promise<void> {
+  const button = element(by.buttonText('Create Lab Result'));
+  await browser.wait(EC.elementToBeClickable(button), 10000, 'Create Lab Result button is not clickable');
+  await button.click();
+}
+
+async typeLabPanel(text: string): Promise<void> {
+  const input = element(by.css('input[placeholder="Search"][role="combobox"]'));
+
+  await browser.wait(EC.visibilityOf(input), 10000, 'Lab Panel input not visible');
+  await input.clear();
+  await input.sendKeys(text);
+  await browser.sleep(300);
+  await input.sendKeys(protractor.Key.ENTER);
+}
+
+async typeNumberStartTime(text: string): Promise<void> {
+  const input = element(by.css('input[id="/100301-1/1"]'));
+  await browser.wait(EC.visibilityOf(input), 10000, 'Input not visible');
+  await input.clear();
+  await input.sendKeys(text);
+}
+
+async typeNumberEndTime(text: string): Promise<void> {
+  const input = element(by.css('input[id="/100300-3/1"]'));
+  await browser.wait(EC.visibilityOf(input), 10000, 'End time input not visible');
+  await input.clear();
+  await input.sendKeys(text);
+}
+
+async clickCreateLabResultsButton(): Promise<void> {
+  const button = element(by.cssContainingText('button.btn.btn-az-primary', 'Create Lab Results'));
+  await browser.wait(EC.elementToBeClickable(button), 10000, 'Create Lab Results button is not clickable');
+  await button.click();
+}
+
+////////// ////////// Notes & Attachments page
+
+async clickAttachments(): Promise<void> {
+  const attachmentsTab = element(by.cssContainingText('.nav-link', 'Attachments'));
+  await browser.wait(EC.elementToBeClickable(attachmentsTab), 10000, 'Attachments tab not clickable');
+  await attachmentsTab.click();
+}
+
+async verifyNameContainsSurgery(): Promise<void> {
+  const nameInput = element(by.css('input[formcontrolname="name"]'));
+  await browser.wait(EC.visibilityOf(nameInput), 10000, 'Name input not visible');
+  const value = await nameInput.getAttribute('value');
+  expect(value).toContain('Surgery', `Expected input value to contain 'Surgery', but got '${value}'`);
+}
+
+async clickCloseButton(): Promise<void> {
+  const closeButton = element(by.css('button.close[aria-label="Close"]'));
+  await browser.wait(EC.elementToBeClickable(closeButton), 10000, 'Close button is not clickable');
+  await closeButton.click();
+}
+
+async clickExportToPDF(): Promise<void> {
+  const link = element(by.cssContainingText('a.nav-link', 'Export to PDF'));
+  await browser.wait(EC.elementToBeClickable(link), 10000, '"Export to PDF" link not clickable');
+  await link.click();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
