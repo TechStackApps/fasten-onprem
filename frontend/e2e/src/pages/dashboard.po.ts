@@ -15,7 +15,7 @@ export class DashboardPage {
   }
 
  async getUserNameOnly(): Promise<string> {
-  const el = element(by.cssContainingText('.card-text', 'Letha284 Haag279'));
+  const el = element(by.css('.card.card-dashboard-pageviews .card-text'));
   await browser.wait(EC.visibilityOf(el), 5000);
   const fullText = await el.getText(); 
   return fullText.split('|')[0].trim(); 

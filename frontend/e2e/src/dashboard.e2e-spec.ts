@@ -57,16 +57,16 @@ describe(' Auth Signin Page', () => {
       const sourcesUrl = await browser.getCurrentUrl();
       console.log(`Current URL: ${sourcesUrl}`);
       expect(sourcesUrl).toContain('/sources');
-
+  
+      // get for more example : 
+      // https://github.com/fastenhealth/docs/blob/main/getting-started/sandbox.md#testing-manual-bundle-upload
       const filePath = path.resolve(
         __dirname,
-        'data/Letha284_Haag279_b9a32653-9fde-401f-bb32-9932e680c456.json'
+        'data/example_client.json'
       );
       console.log('Uploading file:', filePath);
 
       await sourcesPage.uploadFile(filePath);
-
-
 
     });
   });

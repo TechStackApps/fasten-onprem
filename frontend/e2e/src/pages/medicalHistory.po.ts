@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 
+
 export class MedicalHistoryPage {
 
   getMedicalHistoryLink(): ElementFinder {
@@ -73,7 +74,9 @@ async clickSubmitButton(): Promise<void> {
 
 async typeSurgeryOrImplant(text: string): Promise<void> {
   const input = element(by.css("input[placeholder='Search'][role='combobox']"));
-  await this.typeIntoElement(input, text);
+  await input.clear();
+  await input.sendKeys(text);
+  await input.sendKeys(protractor.Key.ENTER);
 }
 
 async clickAddSurgeryOrImplantButton(): Promise<void> {
@@ -83,6 +86,24 @@ async clickAddSurgeryOrImplantButton(): Promise<void> {
 }
 
 async typeDate(date: string): Promise<void> {
+  await this.typeIntoInput('input[placeholder="yyyy-mm-dd"]', date);
+}
+
+async selectPerformedByProcedure (optionText: string): Promise<void> {
+  const select = element(by.css('select[formcontrolname="performer"]'));
+  const option = select.element(by.cssContainingText('option', optionText));
+  await browser.wait(EC.elementToBeClickable(option), 5000);
+  await option.click();
+}
+
+async selectLocation (optionText: string): Promise<void> { 
+  const select = element(by.css("[formcontrolname='location']"));
+  const option = select.element(by.cssContainingText('option', optionText));
+  await browser.wait(EC.elementToBeClickable(option), 5000);
+  await option.click();
+} 
+
+async selectPerformedBy(date: string): Promise<void> {
   await this.typeIntoInput('input[placeholder="yyyy-mm-dd"]', date);
 }
 
@@ -149,10 +170,6 @@ async clickSaveButton(): Promise<void> {
   await browser.wait(EC.elementToBeClickable(button), 10000);
   await button.click();
 }
-
-
-
-
 
 async clickMedicalHistoryLink(): Promise<void> {
     const link = this.getMedicalHistoryLink();
@@ -402,41 +419,8 @@ async clickExportToPDF(): Promise<void> {
   await browser.wait(EC.elementToBeClickable(link), 10000, '"Export to PDF" link not clickable');
   await link.click();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+
+
+
+

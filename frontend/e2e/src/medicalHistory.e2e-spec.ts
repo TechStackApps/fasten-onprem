@@ -1,6 +1,7 @@
 import { LoginPage } from './pages/login.po';
 import { MedicalHistoryPage } from './pages/medicalHistory.po';
 import { browser, ExpectedConditions as EC } from 'protractor';
+import { clickExportToPDF } from './helpers/pdf-utils';
 
 describe('Medical History - Add Medication Flow', () => {
   let loginPage: LoginPage;
@@ -49,9 +50,11 @@ describe('Medical History - Add Medication Flow', () => {
   it('should add a Procedure under "Major Surgeries and Implants"', async () => {
     await medicalHistoryPage.clickProceduresTab();
     await medicalHistoryPage.clickAddSurgeryOrImplantButton();
-    console.log('✅ Clicked Add Surgery or Implant');
+    console.log(' Clicked Add Surgery or Implant');
     await medicalHistoryPage.typeSurgeryOrImplant('Hernia repair');
     await medicalHistoryPage.typeDate('2025-08-01');
+    await medicalHistoryPage.selectPerformedByProcedure('New Practitioner');
+    await medicalHistoryPage.selectLocation('New Organization');
     await medicalHistoryPage.typeDescription(
       'Surgery is a medical procedure where doctors use special tools to fix, remove, or improve something inside your body to help you feel better or get healthier.');
     await medicalHistoryPage.addNewAttachment();
@@ -118,6 +121,7 @@ it('should verify Notes & Attachments already exist', async () => {
 });
 
 it('should download the PDF file', async () => {
-  await medicalHistoryPage.clickExportToPDF();
+ // await medicalHistoryPage.clickExportToPDF();
+   await clickExportToPDF();
 });
 });
