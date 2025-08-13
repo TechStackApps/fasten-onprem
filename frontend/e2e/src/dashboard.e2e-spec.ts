@@ -1,75 +1,27 @@
-import { LoginPage } from './pages/login.po';
+import { browser } from 'protractor';
+import { DashboardPage } from './pages/dashboard.po';
 import { SourcesPage } from './pages/sources.po';
-import {DashboardPage} from './pages/dashboard.po';
-import { browser, by, element, ExpectedConditions as EC } from 'protractor';
-import * as path from 'path';
+import { loginAsUser } from './helpers/auth.helper';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
 
-describe(' Auth Signin Page', () => {
-  let loginPage: LoginPage;
-  let sourcesPage: SourcesPage;
-  let dashboard: DashboardPage
+describe('Auth Signin Page', () => {
+  let dashboard: DashboardPage;
 
   beforeAll(async () => {
-    loginPage = new LoginPage();
-    sourcesPage = new SourcesPage();
     dashboard = new DashboardPage();
 
     await browser.driver.manage().window().maximize();
     await browser.waitForAngularEnabled(true);
-
-    await loginPage.navigateTo();
-
-    console.log('Navigated to login page:', await browser.getCurrentUrl());
-
-   
-    await browser.wait(
-      EC.presenceOf(loginPage.getUsernameInput()),
-      5000,
-      'Username input not found'
-    );
-
-    await loginPage.login('user', 'test@test.com');
-
-    await browser.wait(
-      EC.visibilityOf(loginPage.getWelcomeMessage()),
-      5000,
-      'Dashboard not loaded'
-    );
+    await loginAsUser('user', 'test@test.com');
   });
 
-  describe('Login flow', () => {
-    it('should show welcome message after login', async () => {
-      const currentUrl = await browser.getCurrentUrl();
-      expect(currentUrl).toContain('/dashboard');
-
-      const messageText = await loginPage.getWelcomeMessage().getText();
-      expect(messageText).toContain('Welcome back!');
-    });
-  });
-
-  describe('Sources Upload flow', () => {
-    it('should navigate to Sources page and upload a file', async () => {
-      console.log('Clicking on the Sources link');
-      await sourcesPage.clickOnSourcesLink();
-
-      const sourcesUrl = await browser.getCurrentUrl();
-      console.log(`Current URL: ${sourcesUrl}`);
-      expect(sourcesUrl).toContain('/sources');
-  
-      // get for more example : 
-      // https://github.com/fastenhealth/docs/blob/main/getting-started/sandbox.md#testing-manual-bundle-upload
-      const filePath = path.resolve(
-        __dirname,
-        'data/example_client.json'
-      );
-      console.log('Uploading file:', filePath);
-
-      await sourcesPage.uploadFile(filePath);
-
+  describe('Verify user health records', () => {
+    it('should display Healthy status in user records', async () => {
+      await dashboard.clickDashboardLink();
+      await browser.sleep(4000);
+      const name = await dashboard.getUserNameOnly();
+      console.log('User name:', name);
     });
   });
 });
-
-

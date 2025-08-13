@@ -14,10 +14,15 @@ export class DashboardPage {
     await link.click();
   }
 
- async getUserNameOnly(): Promise<string> {
-  const el = element(by.css('.card.card-dashboard-pageviews .card-text'));
+async getUserNameOnly(): Promise<string> {
+  const el = element(by.css('.card-dashboard-pageviews .card-text'));
   await browser.wait(EC.visibilityOf(el), 5000);
-  const fullText = await el.getText(); 
-  return fullText.split('|')[0].trim(); 
+  const fullText = await el.getText();
+  console.log('FULL TEXT:', JSON.stringify(fullText));
+  
+  const firstPart = fullText.split('|')[0].trim();
+  
+  console.log('RETURNED NAME:', JSON.stringify(firstPart));
+  return firstPart;
 }
 }
