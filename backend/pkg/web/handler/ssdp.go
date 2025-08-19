@@ -177,8 +177,6 @@ func GetSSDPStatus(c *gin.Context) {
 	})
 }
 
-
-
 // MobileSync handles mobile app sync requests
 // Returns a JWT token for an existing user with FHIR data
 func MobileSync(c *gin.Context) {
@@ -195,9 +193,9 @@ func MobileSync(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to get user with data"})
 		return
 	}
-	
+
 	log.Debugf("Using existing user: %s (ID: %s) for mobile sync", existingUser.Username, existingUser.ID)
-	
+
 	// Generate a proper JWT token using the existing auth function (1 hour expiry)
 	userToken, err := auth.JwtGenerateFastenTokenFromUser(*existingUser, appConfig.GetString("jwt.issuer.key"))
 	if err != nil {
@@ -207,7 +205,7 @@ func MobileSync(c *gin.Context) {
 	}
 
 	log.Debug("Successfully generated JWT token for existing user")
-	
+
 	// Get server info for mobile app
 	serverHost := c.GetHeader("X-Forwarded-Host")
 	if serverHost == "" {

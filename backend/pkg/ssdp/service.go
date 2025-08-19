@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"strings"
 	"time"
 
 	"github.com/fastenhealth/fasten-onprem/backend/pkg/config"
@@ -12,11 +11,7 @@ import (
 )
 
 const (
-	// SSDP standard constants
-	SSDP_ADDR     = "239.255.255.250:1900" // Standard SSDP multicast address
-	SSDP_PORT     = 1900                    // Standard SSDP port
-	SSDP_MAX_AGE  = 1800                    // Max age for SSDP responses (30 minutes)
-	SSDP_INTERVAL = 30                      // Interval for periodic NOTIFY (30 seconds)
+	DISCOVERY_PORT = 1901 // Different port to avoid conflicts
 )
 
 type SSDPService struct {
@@ -26,7 +21,7 @@ type SSDPService struct {
 	serverPort string
 	ctx        context.Context
 	cancel     context.CancelFunc
-	conn       *net.UDPConn
+	listener   net.Listener
 }
 
 func NewSSDPService(config config.Interface, logger *logrus.Entry, serverAddr, serverPort string) *SSDPService {
@@ -42,218 +37,142 @@ func NewSSDPService(config config.Interface, logger *logrus.Entry, serverAddr, s
 }
 
 func (s *SSDPService) Start() error {
-	s.logger.Info("Starting SSDP service for UPnP device discovery")
+	s.logger.Info("Starting simple network discovery service for mobile apps")
 
-	// Create UDP connection for SSDP multicast
-	ssdpAddr, err := net.ResolveUDPAddr("udp", SSDP_ADDR)
-	if err != nil {
-		return fmt.Errorf("failed to resolve SSDP address: %v", err)
-	}
+	// Start simple TCP discovery service
+	go s.startDiscoveryService()
 
-	// Try to bind to the multicast address directly
-	conn, err := net.ListenMulticastUDP("udp", nil, ssdpAddr)
-	if err != nil {
-		s.logger.Warnf("Failed to bind to multicast address %s: %v", SSDP_ADDR, err)
-		
-		// Fallback: bind to any available port
-		addr, err := net.ResolveUDPAddr("udp", ":0")
-		if err != nil {
-			return fmt.Errorf("failed to resolve UDP address: %v", err)
-		}
-
-		conn, err = net.ListenUDP("udp", addr)
-		if err != nil {
-			return fmt.Errorf("failed to create UDP connection: %v", err)
-		}
-	}
-
-	s.conn = conn
-	s.logger.Infof("SSDP service bound to %s", conn.LocalAddr().String())
-
-	// Start goroutine to handle incoming SSDP messages
-	go s.handleSSDPMessages()
-
-	// Start periodic NOTIFY broadcasts
+	// Start network broadcast
 	go s.broadcastPresence()
 
-	s.logger.Info("SSDP service started successfully")
+	s.logger.Info("Network discovery service started successfully")
 	return nil
 }
 
-
-
 func (s *SSDPService) Stop() {
-	s.logger.Info("Stopping SSDP service")
+	s.logger.Info("Stopping network discovery service")
 	if s.cancel != nil {
 		s.cancel()
 	}
-	if s.conn != nil {
-		s.conn.Close()
+	if s.listener != nil {
+		s.listener.Close()
 	}
 }
 
-func (s *SSDPService) handleSSDPMessages() {
-	buffer := make([]byte, 1024)
-	
+func (s *SSDPService) startDiscoveryService() {
+	s.logger.Info("Starting TCP discovery service on port 1901")
+
+	// Listen on TCP port for discovery requests
+	listener, err := net.Listen("tcp", ":1901")
+	if err != nil {
+		s.logger.Errorf("Failed to start discovery service: %v", err)
+		return
+	}
+	s.listener = listener
+	defer listener.Close()
+
 	for {
 		select {
 		case <-s.ctx.Done():
+			s.logger.Info("Discovery service stopped")
 			return
 		default:
-			// Set read timeout to allow context cancellation
-			s.conn.SetReadDeadline(time.Now().Add(1 * time.Second))
-			
-			n, remoteAddr, err := s.conn.ReadFromUDP(buffer)
+			conn, err := listener.Accept()
 			if err != nil {
-				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-					continue // Timeout, continue loop
-				}
-				if strings.Contains(err.Error(), "use of closed network connection") {
-					return // Connection closed
-				}
-				s.logger.Debugf("UDP read error: %v", err)
+				s.logger.Errorf("Failed to accept connection: %v", err)
 				continue
 			}
 
-			message := string(buffer[:n])
-			s.logger.Debugf("Received SSDP message from %s: %s", remoteAddr, message)
+			go s.handleDiscoveryRequest(conn)
+		}
+	}
+}
 
-			// Handle M-SEARCH requests
-			if strings.Contains(message, "M-SEARCH") {
-				go s.handleMSearch(remoteAddr, message)
+func (s *SSDPService) handleDiscoveryRequest(conn net.Conn) {
+	defer conn.Close()
+
+	s.logger.Infof("Discovery request from %s", conn.RemoteAddr())
+
+	// Send server info
+	response := fmt.Sprintf(`{
+		"server": "Fasten Health Server",
+		"version": "1.0.0",
+		"endpoints": {
+			"sync": "http://%s:%s/api/mobile/sync",
+			"health": "http://%s:%s/api/health"
+		},
+		"timestamp": "%s"
+	}`, s.serverAddr, s.serverPort, s.serverAddr, s.serverPort, time.Now().Format(time.RFC3339))
+
+	conn.Write([]byte(response))
+	s.logger.Infof("Sent discovery response to %s", conn.RemoteAddr())
+}
+
+func (s *SSDPService) broadcastPresence() {
+	// Wait a bit for the service to fully start
+	time.Sleep(3 * time.Second)
+
+	s.logger.Info("Broadcasting network presence")
+
+	// Send UDP broadcast to local network
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		s.logger.Errorf("Failed to get network interfaces: %v", err)
+		return
+	}
+
+	for _, iface := range interfaces {
+		if iface.Flags&net.FlagUp != 0 && iface.Flags&net.FlagBroadcast != 0 {
+			addrs, err := iface.Addrs()
+			if err != nil {
+				continue
+			}
+
+			for _, addr := range addrs {
+				if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+					if ipnet.IP.To4() != nil {
+						// Get broadcast address
+						broadcastIP := s.getBroadcastIP(ipnet)
+						if broadcastIP != nil {
+							s.sendBroadcast(broadcastIP)
+						}
+					}
+				}
 			}
 		}
 	}
 }
 
-func (s *SSDPService) handleMSearch(remoteAddr *net.UDPAddr, message string) {
-	s.logger.Infof("Handling M-SEARCH request from %s", remoteAddr)
-
-	// Parse M-SEARCH request to get search target
-	searchTarget := s.extractSearchTarget(message)
-	
-	// Check if we support the requested service
-	if searchTarget == "ssdp:all" || 
-	   strings.Contains(searchTarget, "FastenHealth") ||
-	   strings.Contains(searchTarget, "upnp:rootdevice") {
-		
-		// Send SSDP response
-		response := s.createSSDPResponse(searchTarget)
-		s.sendSSDPResponse(remoteAddr, response)
-	}
-}
-
-func (s *SSDPService) extractSearchTarget(message string) string {
-	lines := strings.Split(message, "\r\n")
-	for _, line := range lines {
-		if strings.HasPrefix(line, "ST:") {
-			return strings.TrimSpace(strings.TrimPrefix(line, "ST:"))
-		}
-	}
-	return "ssdp:all"
-}
-
-func (s *SSDPService) createSSDPResponse(searchTarget string) string {
-	// Get server host (prefer X-Forwarded-Host if available)
-	serverHost := s.serverAddr
-	if serverHost == "0.0.0.0" {
-		serverHost = "localhost" // Fallback for local development
+func (s *SSDPService) getBroadcastIP(ipnet *net.IPNet) net.IP {
+	ip := ipnet.IP.To4()
+	if ip == nil {
+		return nil
 	}
 
-	location := fmt.Sprintf("http://%s:%s%s", serverHost, s.serverPort, s.config.GetString("ssdp.location"))
-	
-	response := fmt.Sprintf(
-		"HTTP/1.1 200 OK\r\n"+
-			"CACHE-CONTROL: max-age=%d\r\n"+
-			"DATE: %s\r\n"+
-			"EXT:\r\n"+
-			"LOCATION: %s\r\n"+
-			"SERVER: FastenHealth/1.0 UPnP/1.0\r\n"+
-			"ST: %s\r\n"+
-			"USN: uuid:fasten-onprem-%s::%s\r\n"+
-			"\r\n",
-		SSDP_MAX_AGE,
-		time.Now().Format(time.RFC1123),
-		location,
-		searchTarget,
-		s.config.GetString("ssdp.name"),
-		searchTarget,
-	)
-	
-	return response
+	mask := ipnet.Mask
+	broadcast := make(net.IP, len(ip))
+	for i := range ip {
+		broadcast[i] = ip[i] | ^mask[i]
+	}
+	return broadcast
 }
 
-func (s *SSDPService) sendSSDPResponse(remoteAddr *net.UDPAddr, response string) {
-	// Send response to the requesting client
-	_, err := s.conn.WriteToUDP([]byte(response), remoteAddr)
+func (s *SSDPService) sendBroadcast(broadcastIP net.IP) {
+	conn, err := net.DialUDP("udp", nil, &net.UDPAddr{
+		IP:   broadcastIP,
+		Port: 1901,
+	})
 	if err != nil {
-		s.logger.Errorf("Failed to send SSDP response: %v", err)
-	} else {
-		s.logger.Infof("Sent SSDP response to %s", remoteAddr)
-	}
-}
-
-func (s *SSDPService) broadcastPresence() {
-	// Wait for service to fully start
-	time.Sleep(2 * time.Second)
-	
-	s.logger.Info("Starting periodic SSDP presence broadcasts")
-	
-	ticker := time.NewTicker(SSDP_INTERVAL * time.Second)
-	defer ticker.Stop()
-	
-	// Send initial NOTIFY
-	s.sendNotify()
-	
-	for {
-		select {
-		case <-s.ctx.Done():
-			return
-		case <-ticker.C:
-			s.sendNotify()
-		}
-	}
-}
-
-func (s *SSDPService) sendNotify() {
-	// Get server host
-	serverHost := s.serverAddr
-	if serverHost == "0.0.0.0" {
-		serverHost = "localhost"
-	}
-
-	location := fmt.Sprintf("http://%s:%s%s", serverHost, s.serverPort, s.config.GetString("ssdp.location"))
-	
-	// Create NOTIFY message
-	notify := fmt.Sprintf(
-		"NOTIFY * HTTP/1.1\r\n"+
-			"HOST: %s\r\n"+
-			"CACHE-CONTROL: max-age=%d\r\n"+
-			"LOCATION: %s\r\n"+
-			"NT: %s\r\n"+
-			"NTS: ssdp:alive\r\n"+
-			"SERVER: FastenHealth/1.0 UPnP/1.0\r\n"+
-			"USN: uuid:fasten-onprem-%s::%s\r\n"+
-			"\r\n",
-		SSDP_ADDR,
-		SSDP_MAX_AGE,
-		location,
-		s.config.GetString("ssdp.service"),
-		s.config.GetString("ssdp.name"),
-		s.config.GetString("ssdp.service"),
-	)
-	
-	// Send to SSDP multicast address
-	ssdpAddr, err := net.ResolveUDPAddr("udp", SSDP_ADDR)
-	if err != nil {
-		s.logger.Errorf("Failed to resolve SSDP address: %v", err)
+		s.logger.Debugf("Failed to create UDP connection for broadcast: %v", err)
 		return
 	}
-	
-	_, err = s.conn.WriteToUDP([]byte(notify), ssdpAddr)
+	defer conn.Close()
+
+	message := fmt.Sprintf("FASTEN_SERVER:%s:%s", s.serverAddr, s.serverPort)
+	_, err = conn.Write([]byte(message))
 	if err != nil {
-		s.logger.Errorf("Failed to send SSDP NOTIFY: %v", err)
+		s.logger.Debugf("Failed to send broadcast: %v", err)
 	} else {
-		s.logger.Debug("Sent SSDP NOTIFY broadcast")
+		s.logger.Infof("Broadcasted presence to %s", broadcastIP)
 	}
 }

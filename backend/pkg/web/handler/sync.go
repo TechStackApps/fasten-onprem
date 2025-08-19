@@ -28,6 +28,7 @@ func SyncData(c *gin.Context) {
 	}
 
 	logger.Debugf("Successfully retrieved user: %s (ID: %s) for sync data", currentUser.Username, currentUser.ID)
+
 	logger.Debug("Querying all resources for user")
 
 	// Get all resources for the user
