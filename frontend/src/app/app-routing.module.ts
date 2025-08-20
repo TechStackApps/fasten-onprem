@@ -51,7 +51,7 @@ const routes: Routes = [
   { path: 'sources/callback/:state', component: MedicalSourcesComponent, canActivate: [ IsAuthenticatedAuthGuard] },
   { path: 'resource/create', component: ResourceCreatorComponent, canActivate: [ IsAuthenticatedAuthGuard] },
 
-  { path: 'resource/ocr-scan', component: ResourceOcrComponent, canActivate: [ IsAuthenticatedAuthGuard] },
+  { path: 'scan', component: ResourceOcrComponent, canActivate: [ IsAuthenticatedAuthGuard] },
 
   { path: 'desktop/callback/:state', component: DesktopCallbackComponent, canActivate: [ IsAuthenticatedAuthGuard] },
 
