@@ -419,6 +419,19 @@ async clickExportToPDF(): Promise<void> {
   await browser.wait(EC.elementToBeClickable(link), 10000, '"Export to PDF" link not clickable');
   await link.click();
 }
+
+//assert 
+ getEncounterCard(): ElementFinder {
+    return element(by.css('fhir-card'));
+  }
+
+  async clickDropdownAll(): Promise<void> {
+  await element(by.id('dropdownAll')).click();
+}
+
+  async getDropdownText(): Promise<string> {
+  return await element(by.xpath("//div[@class='dropdown-menu show']")).getText();
+}
 }
 
 
