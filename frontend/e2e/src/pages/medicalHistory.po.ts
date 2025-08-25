@@ -421,12 +421,46 @@ async clickExportToPDF(): Promise<void> {
 }
 
 //assert 
- getEncounterCard(): ElementFinder {
+
+async getSymptomText(): Promise<string> {
+  const el = element(
+    by.css("[href='/explore/4c46ee9a-6249-406d-97a0-39d665ea19c9/resource/3d76e954-60e5-4631-bc36-e6905de93d10']")
+  );
+  return await el.getText();
+}
+
+async getLatestConditionDate(): Promise<string> {
+  const times = element.all(by.css(".timeline .time"));
+  return await times.first().getText(); 
+}
+
+getEncounterCard(): ElementFinder {
     return element(by.css('fhir-card'));
   }
 
-  async clickDropdownAll(): Promise<void> {
-  await element(by.id('dropdownAll')).click();
+async clickDropdownClinicalReports(): Promise<void> {
+  const firstReport = element.all(by.id("dropdownReports")).first();
+  await firstReport.click();
+}
+
+async getLabReportText(): Promise<string> {
+  const el = element.all(
+    by.css("[href='/explore/4c46ee9a-6249-406d-97a0-39d665ea19c9/resource/100302-9-1755869588351-3-4267ca30ff016']")
+  ).first();
+
+  return await el.getText();
+}
+
+async getRadiologyLabReportText(): Promise<string> {
+  const el = element(
+    by.cssContainingText("a.dropdown-item", "Lab Report - Radiology studies (set)")
+  );
+  return await el.getText();
+}
+
+async clickDropdownAll(): Promise<void> {
+  const dropdown = element.all(by.id('dropdownAll')).first();
+  await dropdown.click();
 }
 
   async getDropdownText(): Promise<string> {

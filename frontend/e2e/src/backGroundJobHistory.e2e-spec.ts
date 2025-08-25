@@ -28,6 +28,10 @@ describe('Login and navigate to Background Jobs', () => {
     console.log('Verifying status badge');
     await background.verifyAnyValidStatusLabel();
 
+    const statusText = await background.getAnyValidStatusLabel().getText();
+
+   expect(['STATUS_LOCKED', 'STATUS_DONE']).toContain(statusText);
+
     await background.closeDetailsModal();
   });
 });

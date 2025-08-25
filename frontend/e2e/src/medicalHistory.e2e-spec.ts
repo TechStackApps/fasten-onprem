@@ -37,7 +37,7 @@ describe('Medical History - Add Medication Flow', () => {
 
   });
 
-    it('should add Medical Practitioners', async () => {
+    it('should add Medical Practitioners', async () => {  
     await medicalHistoryPage.clickPractitioners();
     await medicalHistoryPage.clickAddPractitionerButton();
     await medicalHistoryPage.clickCreateButton();
@@ -133,12 +133,25 @@ describe('Medical History - Add Medication Flow', () => {
   });
 
   it('should verify all added medical history manually saved', async () => {
-  //await medicalHistoryPage.clickExportToPDF();
+
+  const symptomText = await medicalHistoryPage.getSymptomText();
+  expect(symptomText).toEqual("ACAS");
+
+  const conditionDate = await medicalHistoryPage.getLatestConditionDate(); 
+  expect(conditionDate).toEqual("Aug 22"); 
+
+  await medicalHistoryPage.clickDropdownClinicalReports();
+  const text = await medicalHistoryPage.getLabReportText();
+  expect(text).toEqual("Lab Report - Time period start and end panel Unspecified body region");
+
+  const textsecond = await medicalHistoryPage.getRadiologyLabReportText();
+  expect(textsecond).toEqual("Lab Report - Radiology studies (set)");
+
   await medicalHistoryPage.clickDropdownAll();
 
   await browser.sleep(5000); 
 
-    const dropdownText = await medicalHistoryPage.getDropdownText();
+  const dropdownText = await medicalHistoryPage.getDropdownText();
 
   expect(dropdownText).toContain('DiagnosticReport - Time period start and end panel Unspecified body region');
   expect(dropdownText).toContain('DiagnosticReport - Radiology studies (set)');
