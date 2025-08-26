@@ -125,7 +125,6 @@ describe('Medical History - Add Medication Flow', () => {
     await medicalHistoryPage.verifyNameContainsSurgery();
     await medicalHistoryPage.clickSaveButton();
     
-    
   });
 
   it('should download the PDF file', async () => {
