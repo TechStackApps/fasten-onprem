@@ -15,46 +15,145 @@ describe('Auth Signin Page', () => {
   });
 
   describe('Labs Observations', () => {   
- it("should verify Tobacco smoking status", async () => {  
-  await labsPage.goToLabsPage();
+    it("should verify Tobacco smoking status", async () => {  
+      await labsPage.goToLabsPage();
 
-  const status = await labsPage.getTobaccoSmokingStatus();
-  expect(status.trim()).toBe("Tobacco smoking status NHIS");
+      const status = await labsPage.getTobaccoSmokingStatus();
+      expect(status.trim()).toBe("Tobacco smoking status NHIS");
 
-  const fullObservationText = await labsPage.getTobaccoSmokingStatusSection();
-  console.log("OBSERVATION TEXT:", fullObservationText);
+      const fullObservationText = await labsPage.getTobaccoSmokingStatusSection();
+      console.log("OBSERVATION TEXT:", fullObservationText);
 
-  expect(fullObservationText).toContain("Short Name: Tobacco smoking status NHIS");
-  expect(fullObservationText).toContain("Result:");
-  expect(fullObservationText).toContain("Latest Test Date: Sep 6, 2019");
-  expect(fullObservationText).toContain("LOINC Code: 72166-2");
+      expect(fullObservationText).toContain("Short Name: Tobacco smoking status NHIS");
+      expect(fullObservationText).toContain("Result:");
+      expect(fullObservationText).toContain("Latest Test Date: Sep 6, 2019");
+      expect(fullObservationText).toContain("LOINC Code: 72166-2");
+    });
+
+    it("should verify Pain severity observation", async () => {
+      await labsPage.goToLabsPage();
+
+      
+      const observations = await labsPage.getAllObservations();
+      console.log("Total observations:", observations.length);
+      console.log("First observation:", observations[0]);
+      console.log("Last observation:", observations[observations.length - 1]);
+
+      expect(observations[0]).toEqual({
+        date: "Sep 6, 2019",
+        result: "Never smoker"
+      });
+
+      
+      const painSeverityText = await labsPage.getPainSeveritySection();
+      console.log("Pain severity observation:", painSeverityText);
+      expect(painSeverityText).toContain("Pain severity - 0-10 verbal numeric rating [Score] - Reported");
+
+      
+      const details = await labsPage.getPainObservation();
+      console.log("Pain observation details:", details);
+      expect(details[0]).toContain("Short Name: Pain severity - 0-10 verbal numeric rating [Score] - Reported");
+      expect(details[0]).toContain("Result: 5.588461282790446 {score}");
+      expect(details[0]).toContain("Latest Test Date: Sep 16, 2019");
+      expect(details[0]).toContain("Ordered By:");
+      expect(details[0]).toContain("LOINC Code: 72514-3");
+      expect(details[0]).toContain("Notes:");
+    });
+
+    it("should verify Weight difference observation", async () => {
+      
+      const weightDiff = await labsPage.getWeightDifferenceText();
+      console.log("Weight difference text:", weightDiff);
+      expect(weightDiff).toBe("Weight difference [Mass difference] --pre dialysis - post dialysis");
+
+      
+      const observation = await labsPage.getWeightDifferenceObservation();
+      console.log("Weight difference observation:", observation);
+      expect(observation).toContain("Short Name: Weight difference [Mass difference] --pre dialysis - post dialysis");
+      expect(observation).toContain("Result: 1.9055235328162863 kg");
+      expect(observation).toContain("Latest Test Date: Sep 16, 2019");
+      expect(observation).toContain("Ordered By:");
+      expect(observation).toContain("LOINC Code: 74006-8");
+      expect(observation).toContain("Notes:");
+    });
+
+    it("should verify Weight-for-length observation", async () => {
+     
+      const text = await labsPage.getWeightForLengthText();
+      console.log("Weight-for-length text:", text);
+      expect(text).toBe("Weight-for-length Per age and sex");
+
+      
+      const observation = await labsPage.getWeightForLengthObservation();
+      console.log("Weight-for-length observation:", observation);
+      expect(observation).toContain("Short Name: Weight-for-length Per age and sex");
+      expect(observation).toContain("Result: 7.3170067706392565 %");
+      expect(observation).toContain("Latest Test Date: Sep 6, 2019");
+      expect(observation).toContain("Ordered By:");
+      expect(observation).toContain("LOINC Code: 77606-2");
+      expect(observation).toContain("Notes:");
+    });
+
+   it("should verify Platelets [#/volume] in Blood by Automated count", async () => {
+  const text = await labsPage.getPlateletsInBlood();
+  console.log("Platelets text:", text);
+  expect(text).toBe("Platelets [#/volume] in Blood by Automated count");
+
+  const observation = await labsPage.getPlateletsInBloodObservation();
+  console.log("Platelets observation:", observation);
+
+  expect(observation).toContain("Short Name: Platelets [#/volume] in Blood by Automated count");
+  expect(observation).toContain("Result:");
+  expect(observation).toContain("Latest Test Date:");
+  expect(observation).toContain("LOINC Code:");
+  expect(observation).toContain("Notes:");
 });
- });
 
-it("should verify observations list", async () => {
-  const observations = await labsPage.getAllObservations();
+});
+it("should verify Platelets [#/volume] in Blood by Automated count", async () => {
+  const text = await labsPage.getPlateletsInBlood();
+  console.log("Platelets text:", text);
+  expect(text).toBe("Platelets [#/volume] in Blood by Automated count");
 
-  console.log("Total observations:", observations.length);
-  console.log("First observation:", observations[0]);
-  console.log("Last observation:", observations[observations.length - 1]);
+  const observation = await labsPage.getPlateletsInBloodObservation();
+  console.log("Platelets observation:", observation);
 
-  // exemplu de verificare: primul rând
-  expect(observations[0]).toEqual({
-    date: "Sep 6, 2019",
-    result: "Never smoker"
-  });
+  expect(observation).toContain("Short Name: Platelets [#/volume] in Blood by Automated count");
+  expect(observation).toContain("Result:");
+  expect(observation).toContain("Latest Test Date:");
+  expect(observation).toContain("LOINC Code:");
+  expect(observation).toContain("Notes:");
 });
 
-it("should verify Pain severity observation", async () => {
-  await labsPage.goToLabsPage();
+it("should verify MCH [Entitic mass] by Automated count", async () => {
+  const text = await labsPage.getPlateletsInBlood();
+  console.log("Platelets text:", text);
+  expect(text).toBe("Platelets [#/volume] in Blood by Automated count");
 
-  const painSeverityText = await labsPage.getPainSeveritySection();
+  const observation = await labsPage.getPlateletsInBloodObservation();
+  console.log("Platelets observation:", observation);
 
-  console.log("Pain severity observation:", painSeverityText);
-
-  expect(painSeverityText).toContain("Pain severity - 0-10 verbal numeric rating [Score] - Reported");
+  expect(observation).toContain("Short Name: Platelets [#/volume] in Blood by Automated count");
+  expect(observation).toContain("Result:");
+  expect(observation).toContain("Latest Test Date:");
+  expect(observation).toContain("LOINC Code:");
+  expect(observation).toContain("Notes:");
 });
 
+it("should verify MCH [Entitic mass] by Automated count observation", async () => {
+  const text = await labsPage.getMCHText();
+  console.log("MCH text:", text);
+  expect(text).toBe("MCH [Entitic mass] by Automated count");
 
-  });
- 
+  const observation = await labsPage.getMCHObservation();
+  console.log("MCH observation:", observation);
+
+  expect(observation).toContain("Short Name: MCH [Entitic mass] by Automated count");
+  expect(observation).toContain("Result: 30.152225059357296 pg");
+  expect(observation).toContain("Latest Test Date: Sep 6, 2019");
+  expect(observation).toContain("Ordered By:");
+  expect(observation).toContain("LOINC Code: 785-6");
+  expect(observation).toContain("Notes:");
+});
+
+});
