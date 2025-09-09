@@ -23,8 +23,6 @@ export class SourcesPage {
   async uploadFile(filePath: string): Promise<void> {
     const fileInput = this.getFileInput();
     await fileInput.sendKeys(filePath);
-
-    await browser.sleep(3000);
-
+   await browser.sleep(3000);
   }
 }

@@ -14,11 +14,12 @@ describe('Auth Signin Page', () => {
     await browser.waitForAngularEnabled(true);
     await loginAsUser('user', 'test@test.com');
   });
+  
    it("should verify added user", async () => {  
     await usersPage.clickUsersLink();
  
- const exists = await usersPage.isFullNameInTable("User Name");
- expect(exists).toBe(true, "User Name not found in table");
+   const exists = await usersPage.isFullNameInTable("User Name");
+   expect(exists).toBe(true, "User Name not found in table");
 
     await usersPage.clickCreateNewUserButton();
     await usersPage.typeFullName("User Name");
@@ -27,5 +28,5 @@ describe('Auth Signin Page', () => {
     await usersPage.typeEmail("test@username.com");
     await usersPage.clickCreateUserButton();
     
-});
+  });
 }); 

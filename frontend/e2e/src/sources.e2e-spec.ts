@@ -17,16 +17,13 @@ describe('Auth Signin Page', () => {
 
   describe('Sources Upload flow', () => {
     it('should navigate to Sources page and upload a file', async () => {
-      console.log('Clicking on the Sources link');
       await sourcesPage.clickOnSourcesLink();
 
       const sourcesUrl = await browser.getCurrentUrl();
-      console.log(`Current URL: ${sourcesUrl}`);
       expect(sourcesUrl).toContain('/sources');
 
       const filePath = path.resolve(__dirname, './data/example_client.json');
-      console.log('Uploading file:', filePath);
-
+  
       await sourcesPage.uploadFile(filePath);
     });
   });

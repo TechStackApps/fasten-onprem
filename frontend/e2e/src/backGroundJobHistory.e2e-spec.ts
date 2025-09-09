@@ -14,24 +14,15 @@ describe('Login and navigate to Background Jobs', () => {
   });
 
   it('should open notifications and view background job details', async () => {
-    console.log('Opening notification dropdown');
+
     await background.openNotificationsDropdown();
-
-    console.log('Clicking View History');
     await background.clickOnViewHistory();
-
     await browser.waitForAngularEnabled(false);
-
-    console.log('Clicking on Details');
     await background.clickDetailsButton();
-
-    console.log('Verifying status badge');
     await background.verifyAnyValidStatusLabel();
 
     const statusText = await background.getAnyValidStatusLabel().getText();
-
-   expect(['STATUS_LOCKED', 'STATUS_DONE']).toContain(statusText);
-
+    expect(['STATUS_LOCKED', 'STATUS_DONE']).toContain(statusText);
     await background.closeDetailsModal();
   });
 });

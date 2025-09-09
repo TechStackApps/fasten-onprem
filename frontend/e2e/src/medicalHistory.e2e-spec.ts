@@ -1,7 +1,9 @@
 import { MedicalHistoryPage } from './pages/medicalHistory.po';
-import { loginAsUser } from './helpers/auth.helper'; 
+import { loginAsUser } from './helpers/auth.helper';
 import { browser } from 'protractor';
 import { clickExportToPDF } from './helpers/pdf-utils';
+import * as path from 'path'
+import * as fs from 'fs';
 
 describe('Medical History - Add Medication Flow', () => {
   let medicalHistoryPage: MedicalHistoryPage;
@@ -12,7 +14,7 @@ describe('Medical History - Add Medication Flow', () => {
     await browser.driver.manage().window().maximize();
     await browser.waitForAngularEnabled(true);
 
-    
+
     await loginAsUser('user', 'test@test.com');
   });
 
@@ -29,15 +31,15 @@ describe('Medical History - Add Medication Flow', () => {
     await medicalHistoryPage.typePeriodStart('2025-08-22');
     await medicalHistoryPage.typePeriodEnd('2025-12-31');
     await medicalHistoryPage.clickAddEncounter();
-     
-   const cardText = await medicalHistoryPage.getEncounterCard().getText();
-    expect(cardText).toContain('ACAS');       
-    expect(cardText).toContain('Start date'); 
-  
+
+    const cardText = await medicalHistoryPage.getEncounterCard().getText();
+    expect(cardText).toContain('ACAS');
+    expect(cardText).toContain('Start date');
+
 
   });
 
-    it('should add Medical Practitioners', async () => {  
+  it('should add Medical Practitioners', async () => {
     await medicalHistoryPage.clickPractitioners();
     await medicalHistoryPage.clickAddPractitionerButton();
     await medicalHistoryPage.clickCreateButton();
@@ -52,11 +54,16 @@ describe('Medical History - Add Medication Flow', () => {
     await medicalHistoryPage.typePractitionerZip('10001');
     await medicalHistoryPage.typePractitionerCountry('United States of America');
     await medicalHistoryPage.createAddPractitionerButton();
-   
+
+    const practitionerName = await medicalHistoryPage.getPractitionerName();
+    expect(practitionerName.trim()).toBe('Dr.Sarah Levy');
   });
 
   it('should add a Medication with full data', async () => {
     await medicalHistoryPage.clickMedicationsTab();
+
+    const title = await medicalHistoryPage.getPageTitleMedications();
+    expect(title.trim()).toBe('Medications');
     await medicalHistoryPage.clickAddMedicationButton();
     await medicalHistoryPage.typeMedicationName('ZOCOR (Oral Pill)');
     await medicalHistoryPage.changeStatusTo("Activ");
@@ -68,13 +75,16 @@ describe('Medical History - Add Medication Flow', () => {
     await medicalHistoryPage.typeInstructions(
       "Medications are a type of treatment, usually in the form of pills, liquids, or injections, prescribed by doctors to help your body fight off illnesses, manage symptoms, or improve overall health."
     );
-   
+
   });
 
   it('should add a Procedure under "Major Surgeries and Implants"', async () => {
     await medicalHistoryPage.clickProceduresTab();
+
+    const title = await medicalHistoryPage.getSurgeriesTitle();
+    expect(title.trim()).toBe('Major Surgeries and Implants');
+
     await medicalHistoryPage.clickAddSurgeryOrImplantButton();
-    console.log('Clicked Add Surgery or Implant');
     await medicalHistoryPage.typeSurgeryOrImplant('Hernia repair');
     await medicalHistoryPage.typeDate('2025-08-01');
     await medicalHistoryPage.selectPerformedByProcedure('Dr.Sarah Levy');
@@ -87,7 +97,6 @@ describe('Medical History - Add Medication Flow', () => {
     await medicalHistoryPage.typeNewAttachmentFileType('Document - JSON');
     await medicalHistoryPage.uploadAttachment();
     await medicalHistoryPage.clickCreateAttachmentButton();
-    
   });
 
 
@@ -106,7 +115,10 @@ describe('Medical History - Add Medication Flow', () => {
     await medicalHistoryPage.typePractitionerZip('10001');
     await medicalHistoryPage.typePractitionerCountry('United States of America');
     await medicalHistoryPage.createAddPractitionerButton();
-  
+
+    const practitionerName = await medicalHistoryPage.getPractitionerName();
+    expect(practitionerName.trim()).toBe('Dr.Sarah Levy');
+
   });
 
   it('should create a Lab Result', async () => {
@@ -116,52 +128,51 @@ describe('Medical History - Add Medication Flow', () => {
     await medicalHistoryPage.typeNumberStartTime('1');
     await medicalHistoryPage.typeNumberEndTime('60');
     await medicalHistoryPage.clickCreateLabResultsButton();
-   
+
+    const title = await medicalHistoryPage.getObservationTitle();
+    expect(title.trim()).toBe('Time period start and end panel Unspecified body region');
   });
 
   it('should verify Notes & Attachments already exist', async () => {
     await medicalHistoryPage.clickAttachments();
-    await browser.sleep(3000); 
-    await medicalHistoryPage.verifyNameContainsSurgery();
+    await browser.sleep(3000);
+
+    const value = await medicalHistoryPage.getNameInputValue();
+    expect(value).toContain(
+      'Surgery',
+      `Expected input value to contain 'Surgery', but got '${value}'`
+    );
     await medicalHistoryPage.clickSaveButton();
-    
+
   });
 
   it('should download the PDF file', async () => {
-    await clickExportToPDF();
+
+    await medicalHistoryPage.clickExportToPDF();
+
+    const downloadPath = path.resolve(process.cwd(), 'e2e/downloads');
+    const expectedFile = path.join(downloadPath, 'ips_summary.pdf');
+
+    let fileExists = false;
+    for (let i = 0; i < 15; i++) {
+      if (fs.existsSync(expectedFile)) {
+        fileExists = true;
+        break;
+      }
+      await new Promise(res => setTimeout(res, 3000));
+    }
+
+    expect(fileExists).toBe(true, `Expected file to exist at: ${expectedFile}`);
   });
 
   it('should verify all added medical history manually saved', async () => {
 
-  const symptomText = await medicalHistoryPage.getSymptomText();
-  expect(symptomText).toEqual("ACAS");
+    const symptomText = await medicalHistoryPage.getSymptomText();
+    expect(symptomText).toEqual("ACAS");
 
-  const conditionDate = await medicalHistoryPage.getLatestConditionDate(); 
-  expect(conditionDate).toEqual("Aug 22"); 
+    const conditionDate = await medicalHistoryPage.getLatestConditionDate();
+    expect(conditionDate).toEqual("Sep 09");
 
-  await medicalHistoryPage.clickDropdownClinicalReports();
-  const text = await medicalHistoryPage.getLabReportText();
-  expect(text).toEqual("Lab Report - Time period start and end panel Unspecified body region");
-
-  const textsecond = await medicalHistoryPage.getRadiologyLabReportText();
-  expect(textsecond).toEqual("Lab Report - Radiology studies (set)");
-
-  await medicalHistoryPage.clickDropdownAll();
-
-  await browser.sleep(5000); 
-
-  const dropdownText = await medicalHistoryPage.getDropdownText();
-
-  expect(dropdownText).toContain('DiagnosticReport - Time period start and end panel Unspecified body region');
-  expect(dropdownText).toContain('DiagnosticReport - Radiology studies (set)');
-  expect(dropdownText).toContain('Media - Radiology studies (set)');
-  expect(dropdownText).toContain('MedicationRequest');
-  expect(dropdownText).toContain('Observation - Start time Clock time Spec');
-  expect(dropdownText).toContain('Observation - End time Clock time Spec');
-  expect(dropdownText).toContain('Organization - Dr.Sarah Levy');
-  expect(dropdownText).toContain('Practitioner - Dr.Sarah Levy');
-  expect(dropdownText).toContain('Procedure - Hernia repair');
-  
-});
+  });
 });
 

@@ -1,12 +1,12 @@
 import { browser } from 'protractor';
-import { loginAsUser } from './helpers/auth.helper'; 
+import { loginAsUser } from './helpers/auth.helper';
 import { ExplorePage } from './pages/explore.po';
 
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
 
 describe('Auth Signin Page', () => {
-  let explorePage:  ExplorePage;
+  let explorePage: ExplorePage;
 
   beforeAll(async () => {
     explorePage = new ExplorePage();
@@ -15,18 +15,16 @@ describe('Auth Signin Page', () => {
     await loginAsUser('user', 'test@test.com');
   });
 
-  describe('Explore page ', () => {   
-    it("should verify the Explore page if an uploaded file already exists", async () => {  
-        await explorePage.goToExplorePage();
-        const text = await explorePage.getExplorePageTitle();
-        expect(text).toEqual("Explore");
+  describe('Explore page ', () => {
+    it("should verify the Explore page if an uploaded file already exists", async () => {
+      await explorePage.goToExplorePage();
+      const text = await explorePage.getExplorePageTitle();
+      expect(text).toEqual("Explore");
 
-        const medicalRecord = await explorePage.getMedicalRecordLabel();
-        expect(medicalRecord).toContain("Fasten Health");
+      const medicalRecord = await explorePage.getMedicalRecordLabel();
+      expect(medicalRecord).toContain("Fasten Health");
 
-        await explorePage.clickFirstMedicalRecordCard();
-
-});
-}); 
-
+      await explorePage.clickFirstMedicalRecordCard();
+    });
+  });
 });

@@ -1,6 +1,4 @@
 import {protractor, element, by, ElementFinder, browser, ExpectedConditions as EC } from 'protractor';
-import * as fs from 'fs';
-import * as path from 'path';
 
 
 export class UsersPage {
@@ -36,10 +34,6 @@ getEmailInput(): ElementFinder {
 getCreateUserButton(): ElementFinder {
   return element(by.css("button.btn.btn-az-primary[type='submit']"));
 }
-
-
-
- ////////////////////////
 
 async typeFullName(name: string): Promise<void> {
   await browser.wait(EC.visibilityOf(this.getFullNameInput()), 5000);
