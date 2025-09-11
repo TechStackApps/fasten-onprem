@@ -1,5 +1,4 @@
 import { browser } from 'protractor';
-import * as path from 'path';
 import { loginAsUser } from './helpers/auth.helper';
 import { UsersPage } from './pages/users.po';
 

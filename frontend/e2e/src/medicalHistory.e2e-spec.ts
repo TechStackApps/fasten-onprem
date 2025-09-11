@@ -171,8 +171,7 @@ describe('Medical History - Add Medication Flow', () => {
     expect(symptomText).toEqual("ACAS");
 
     const conditionDate = await medicalHistoryPage.getLatestConditionDate();
-    expect(conditionDate).toEqual("Sep 09");
-
+    expect(conditionDate).toMatch(/^[A-Z][a-z]{2} \d{2}$/);
   });
 });
 

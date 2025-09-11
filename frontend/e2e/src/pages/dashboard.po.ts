@@ -46,16 +46,20 @@ export class DashboardPage {
   }
 
   async getAllPatientVitals(): Promise<{ title: string; date: string; value: string }[]> {
-    const items = element.all(by.css(".card-dashboard-pageviews .az-list-item"));
-    await browser.wait(protractor.ExpectedConditions.presenceOf(items.first()), 5000);
-    const results = await items.map(async (item) => {
-      const title = await item.element(by.css("h6")).getText();
-      const date = await item.element(by.css("span")).getText();
-      const value = await item.element(by.css("h6.tx-primary")).getText();
-      return { title, date, value };
-    });
-    return results as { title: string; date: string; value: string }[];
-  }
+  const items = element.all(by.css(".card-dashboard-pageviews .az-list-item"));
+  await browser.wait(protractor.ExpectedConditions.presenceOf(items.first()), 5000);
+
+  const results = await items.map(async (item) => {
+    const allH6 = item.all(by.css("h6"));
+    const title = await allH6.first().getText();
+    const date = await item.element(by.css("span")).getText();
+    const value = await allH6.last().getText();
+    return { title, date, value };
+  });
+
+  return results as { title: string; date: string; value: string }[];
+}
+
 
   async getWeightFromCard(): Promise<string> {
     const card = element(by.cssContainingText(".card-header p", "Weight"));

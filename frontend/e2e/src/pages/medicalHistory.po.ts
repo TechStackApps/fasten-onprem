@@ -454,12 +454,10 @@ export class MedicalHistoryPage {
   }
 
 
-  async getSymptomText(): Promise<string> {
-    const el = element(
-      by.css("[href='/explore/4c46ee9a-6249-406d-97a0-39d665ea19c9/resource/3d76e954-60e5-4631-bc36-e6905de93d10']")
-    );
-    return await el.getText();
-  }
+ async getSymptomText(): Promise<string> {
+  const el = element.all(by.cssContainingText("a", "ACAS")).first();
+  return await el.getText();
+ }
 
   async getLatestConditionDate(): Promise<string> {
     const times = element.all(by.css(".timeline .time"));

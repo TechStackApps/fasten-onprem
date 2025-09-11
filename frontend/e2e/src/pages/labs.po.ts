@@ -66,25 +66,6 @@ export class LabsPage {
     return details;
   }
 
-  async getWeightDifferenceText(): Promise<string> {
-    const el = element(
-      by.xpath("//span[.='Weight difference [Mass difference] --pre dialysis - post dialysis']")
-    );
-    return await el.getText();
-  }
-
-  async getWeightDifferenceObservation(): Promise<string> {
-    const el = element(
-      by.xpath("//p[contains(.,'Short Name: Weight difference [Mass difference] --pre dialysis - post dialysis')]")
-    );
-    const text = await el.getText();
-    return text
-      .replace("show all", "")
-      .split("\n")
-      .map(l => l.trim())
-      .filter(l => l.length > 0)
-      .join("\n");
-  }
 
   async getWeightForLengthText(): Promise<string> {
     const el = element(by.xpath("//span[.='Weight-for-length Per age and sex']"));
