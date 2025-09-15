@@ -1,4 +1,4 @@
-import { MedicalHistoryPage } from './pages/medicalHistory.po';
+import { MedicalHistoryPage } from './pages/medical-history.po';
 import { loginAsUser } from './helpers/auth.helper';
 import { browser } from 'protractor';
 import { clickExportToPDF } from './helpers/pdf-utils';

@@ -1,5 +1,5 @@
 import { browser } from 'protractor';
-import { BackgroundPage } from './pages/backGroundJobHistory.po';
+import { BackgroundPage } from './pages/background-job-history.po';
 import { loginAsUser } from './helpers/auth.helper';
 
 describe('Login and navigate to Background Jobs', () => {

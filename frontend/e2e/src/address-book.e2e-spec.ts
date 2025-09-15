@@ -1,6 +1,6 @@
 import { browser } from 'protractor';
 import { loginAsUser } from './helpers/auth.helper';
-import { AddressBookPage } from './pages/addressBook.po';
+import { AddressBookPage } from './pages/address-book.po';
 import * as fs from 'fs';
 import * as path from 'path';
 
