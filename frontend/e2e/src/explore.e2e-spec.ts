@@ -5,7 +5,7 @@ import { ExplorePage } from './pages/explore.po';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
 
-describe('Auth Signin Page', () => {
+describe('Explore Medical Records', () => {
   let explorePage: ExplorePage;
 
   beforeAll(async () => {
@@ -15,7 +15,7 @@ describe('Auth Signin Page', () => {
     await loginAsUser('user', 'test@test.com');
   });
 
-  describe('Explore page ', () => {
+  
     it("should verify the Explore page if an uploaded file already exists", async () => {
       await explorePage.goToExplorePage();
       const text = await explorePage.getExplorePageTitle();
@@ -27,4 +27,3 @@ describe('Auth Signin Page', () => {
       await explorePage.clickFirstMedicalRecordCard();
     });
   });
-});

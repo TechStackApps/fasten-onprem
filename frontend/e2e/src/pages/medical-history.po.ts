@@ -1,11 +1,14 @@
-import { protractor, element, by, ElementFinder, browser, ExpectedConditions as EC } from 'protractor';
-import * as fs from 'fs';
+import { 
+  protractor, 
+  element, 
+  by, 
+  ElementFinder, 
+  browser, 
+  ExpectedConditions as EC 
+} from 'protractor';
 import * as path from 'path';
 
-
-
 export class MedicalHistoryPage {
-
   getMedicalHistoryLink(): ElementFinder {
     return element(by.css("[routerlink='/medical-history']"));
   }
@@ -21,12 +24,11 @@ export class MedicalHistoryPage {
   getFindCreateEncounterButton(): ElementFinder {
     return element(by.buttonText('Find/Create Encounter'));
   }
+
   getCreateButton(): ElementFinder {
     return element(by.buttonText('Create'));
   }
-  getSearchInput(): ElementFinder {
-    return element(by.css('input[placeholder="Search"]'));
-  }
+
   async typeInSearchInput(text: string): Promise<void> {
     await this.typeIntoInput('input[placeholder="Search"]', text);
   }
@@ -41,11 +43,7 @@ export class MedicalHistoryPage {
 
   async getPageTitleMedications(): Promise<string> {
     const title = element(by.cssContainingText('h6.card-title', 'Medications'));
-    await browser.wait(
-      EC.visibilityOf(title),
-      10000,
-      '"Medications" title not visible'
-    );
+    await browser.wait(EC.visibilityOf(title), 10000);
     return title.getText();
   }
 
@@ -84,7 +82,7 @@ export class MedicalHistoryPage {
 
   async getPractitionerName(): Promise<string> {
     const practitioner = element(by.cssContainingText('h6.card-title', 'Dr.Sarah Levy'));
-    await browser.wait(EC.visibilityOf(practitioner), 10000, 'Practitioner not visible');
+    await browser.wait(EC.visibilityOf(practitioner), 10000);
     return practitioner.getText();
   }
 
@@ -96,20 +94,14 @@ export class MedicalHistoryPage {
   }
 
   async getSurgeriesTitle(): Promise<string> {
-    const title = element(
-      by.cssContainingText('h6.card-title', 'Major Surgeries and Implants')
-    );
-    await browser.wait(
-      EC.visibilityOf(title),
-      10000,
-      'Major Surgeries and Implants title not visible'
-    );
+    const title = element(by.cssContainingText('h6.card-title', 'Major Surgeries and Implants'));
+    await browser.wait(EC.visibilityOf(title), 10000);
     return title.getText();
   }
 
   async clickAddSurgeryOrImplantButton(): Promise<void> {
     const button = element(by.buttonText('Add Surgery or Implant'));
-    await browser.wait(EC.elementToBeClickable(button), 5000, 'Button not clickable');
+    await browser.wait(EC.elementToBeClickable(button), 5000);
     await button.click();
   }
 
@@ -141,13 +133,10 @@ export class MedicalHistoryPage {
 
   async addNewAttachment(): Promise<void> {
     const attachButton = element(by.xpath("//button[.//i[contains(@class, 'fa-paperclip')]]"));
-
-    await browser.wait(EC.presenceOf(attachButton), 5000, 'Attach button not present');
-    await browser.wait(EC.visibilityOf(attachButton), 5000, 'Attach button not visible');
-
+    await browser.wait(EC.presenceOf(attachButton), 5000);
+    await browser.wait(EC.visibilityOf(attachButton), 5000);
     await browser.executeScript('arguments[0].scrollIntoView(true);', attachButton.getWebElement());
-    await browser.wait(EC.elementToBeClickable(attachButton), 5000, 'Attach button not clickable');
-
+    await browser.wait(EC.elementToBeClickable(attachButton), 5000);
     await attachButton.click();
   }
 
@@ -157,10 +146,8 @@ export class MedicalHistoryPage {
 
   async categorySearchNewAttachment(text: string): Promise<void> {
     const input = element(by.css('app-nlm-typeahead[formcontrolname="category"] input[placeholder="Search"]'));
-
-    await browser.wait(EC.presenceOf(input), 10000, ' Category input not present');
-    await browser.wait(EC.elementToBeClickable(input), 5000, ' Category input not clickable');
-
+    await browser.wait(EC.presenceOf(input), 10000);
+    await browser.wait(EC.elementToBeClickable(input), 5000);
     await input.clear();
     await input.sendKeys(text);
     await input.sendKeys(protractor.Key.ENTER);
@@ -168,10 +155,8 @@ export class MedicalHistoryPage {
 
   async typeNewAttachmentFileType(text: string): Promise<void> {
     const input = element(by.css('app-nlm-typeahead[formcontrolname="file_type"] input[placeholder="Search"]'));
-
-    await browser.wait(EC.presenceOf(input), 10000, 'File type input not present');
-    await browser.wait(EC.elementToBeClickable(input), 5000, 'File type input not clickable');
-
+    await browser.wait(EC.presenceOf(input), 10000);
+    await browser.wait(EC.elementToBeClickable(input), 5000);
     await input.clear();
     await input.sendKeys(text);
     await input.sendKeys(protractor.Key.ENTER);
@@ -180,7 +165,6 @@ export class MedicalHistoryPage {
   async uploadAttachment(): Promise<void> {
     const filePath = path.resolve(__dirname, '../data/example_client.json');
     const fileInput = element(by.css('#customFile'));
-
     await browser.wait(EC.presenceOf(fileInput), 5000);
     await browser.executeScript('arguments[0].style.display = "block";', fileInput.getWebElement());
     await fileInput.sendKeys(filePath);
@@ -188,8 +172,7 @@ export class MedicalHistoryPage {
 
   async clickCreateAttachmentButton(): Promise<void> {
     const button = element(by.buttonText('Create Attachment'));
-
-    await browser.wait(EC.elementToBeClickable(button), 5000, 'Create Attachment button not clickable');
+    await browser.wait(EC.elementToBeClickable(button), 5000);
     await button.click();
   }
 
@@ -237,7 +220,6 @@ export class MedicalHistoryPage {
     await input.clear();
     await input.sendKeys(value);
   }
-
 
   async clickAddEncounter(): Promise<void> {
     const button = element(by.css('.btn-az-primary'));
@@ -293,13 +275,13 @@ export class MedicalHistoryPage {
 
   async clickPractitioners(): Promise<void> {
     const practitionerTab = element(by.cssContainingText('.nav-link', 'Practitioners'));
-    await browser.wait(EC.elementToBeClickable(practitionerTab), 10000, 'Practitioners tab not clickable');
+    await browser.wait(EC.elementToBeClickable(practitionerTab), 10000);
     await practitionerTab.click();
   }
 
   async clickAddPractitionerButton(): Promise<void> {
     const addButton = element(by.buttonText('Add Practitioner'));
-    await browser.wait(EC.elementToBeClickable(addButton), 10000, 'Add Practitioner button not clickable');
+    await browser.wait(EC.elementToBeClickable(addButton), 10000);
     await addButton.click();
   }
 
@@ -341,7 +323,6 @@ export class MedicalHistoryPage {
 
   async typePractitionerCountry(text: string): Promise<void> {
     const input = element(by.css('app-nlm-typeahead[formcontrolname="country"] input[placeholder="Search"]'));
-
     await this.typeIntoInput('app-nlm-typeahead[formcontrolname="country"] input[placeholder="Search"]', text);
     await browser.sleep(300);
     await input.sendKeys(protractor.Key.ENTER);
@@ -349,25 +330,23 @@ export class MedicalHistoryPage {
 
   async createAddPractitionerButton(): Promise<void> {
     await this.clickElement('.modal-footer .btn.btn-az-primary');
-
   }
 
   async clickOrganizations(): Promise<void> {
     const organizationsTab = element(by.cssContainingText('.nav-link', 'Organizations'));
-    await browser.wait(EC.elementToBeClickable(organizationsTab), 10000, 'Organizations tab not clickable');
+    await browser.wait(EC.elementToBeClickable(organizationsTab), 10000);
     await organizationsTab.click();
   }
 
   async clickAddOrganizationButton(): Promise<void> {
     const button = element(by.buttonText('Add Organization'));
-    await browser.wait(EC.elementToBeClickable(button), 10000, 'Add Organization button is not clickable');
+    await browser.wait(EC.elementToBeClickable(button), 10000);
     await button.click();
   }
 
   async typeOrganizationType(text: string): Promise<void> {
     const inputSelector = 'app-nlm-typeahead[formcontrolname="type"] input';
     const input = element(by.css(inputSelector));
-
     await this.typeIntoInput(inputSelector, text);
     await browser.sleep(300);
     await input.sendKeys(protractor.Key.ENTER);
@@ -375,20 +354,19 @@ export class MedicalHistoryPage {
 
   async clickLabResults(): Promise<void> {
     const practitionerTab = element(by.cssContainingText('.nav-link', ' Lab Results '));
-    await browser.wait(EC.elementToBeClickable(practitionerTab), 10000, ' Lab Results tab not clickable');
+    await browser.wait(EC.elementToBeClickable(practitionerTab), 10000);
     await practitionerTab.click();
   }
 
   async clickCreateLabResult(): Promise<void> {
     const button = element(by.buttonText('Create Lab Result'));
-    await browser.wait(EC.elementToBeClickable(button), 10000, 'Create Lab Result button is not clickable');
+    await browser.wait(EC.elementToBeClickable(button), 10000);
     await button.click();
   }
 
   async typeLabPanel(text: string): Promise<void> {
     const input = element(by.css('input[placeholder="Search"][role="combobox"]'));
-
-    await browser.wait(EC.visibilityOf(input), 10000, 'Lab Panel input not visible');
+    await browser.wait(EC.visibilityOf(input), 10000);
     await input.clear();
     await input.sendKeys(text);
     await browser.sleep(300);
@@ -397,21 +375,21 @@ export class MedicalHistoryPage {
 
   async typeNumberStartTime(text: string): Promise<void> {
     const input = element(by.css('input[id="/100301-1/1"]'));
-    await browser.wait(EC.visibilityOf(input), 10000, 'Input not visible');
+    await browser.wait(EC.visibilityOf(input), 10000);
     await input.clear();
     await input.sendKeys(text);
   }
 
   async typeNumberEndTime(text: string): Promise<void> {
     const input = element(by.css('input[id="/100300-3/1"]'));
-    await browser.wait(EC.visibilityOf(input), 10000, 'End time input not visible');
+    await browser.wait(EC.visibilityOf(input), 10000);
     await input.clear();
     await input.sendKeys(text);
   }
 
   async clickCreateLabResultsButton(): Promise<void> {
     const button = element(by.cssContainingText('button.btn.btn-az-primary', 'Create Lab Results'));
-    await browser.wait(EC.elementToBeClickable(button), 10000, 'Create Lab Results button is not clickable');
+    await browser.wait(EC.elementToBeClickable(button), 10000);
     await button.click();
   }
 
@@ -424,40 +402,28 @@ export class MedicalHistoryPage {
     ).getText();
   }
 
-
   async clickAttachments(): Promise<void> {
     const attachmentsTab = element(by.cssContainingText('.nav-link', 'Attachments'));
-    await browser.wait(EC.elementToBeClickable(attachmentsTab), 10000, 'Attachments tab not clickable');
+    await browser.wait(EC.elementToBeClickable(attachmentsTab), 10000);
     await attachmentsTab.click();
   }
 
   async getNameInputValue(): Promise<string> {
     const nameInput = element(by.css('input[formcontrolname="name"]'));
-    await browser.wait(
-      EC.visibilityOf(nameInput),
-      10000,
-      'Name input not visible'
-    );
+    await browser.wait(EC.visibilityOf(nameInput), 10000);
     return nameInput.getAttribute('value');
-  }
-
-  async clickCloseButton(): Promise<void> {
-    const closeButton = element(by.css('button.close[aria-label="Close"]'));
-    await browser.wait(EC.elementToBeClickable(closeButton), 10000, 'Close button is not clickable');
-    await closeButton.click();
   }
 
   async clickExportToPDF(): Promise<void> {
     const link = element(by.cssContainingText('a.nav-link', 'Export to PDF'));
-    await browser.wait(EC.elementToBeClickable(link), 10000, '"Export to PDF" link not clickable');
+    await browser.wait(EC.elementToBeClickable(link), 10000);
     await link.click();
   }
 
-
- async getSymptomText(): Promise<string> {
-  const el = element.all(by.cssContainingText("a", "ACAS")).first();
-  return await el.getText();
- }
+  async getSymptomText(): Promise<string> {
+    const el = element.all(by.cssContainingText("a", "ACAS")).first();
+    return await el.getText();
+  }
 
   async getLatestConditionDate(): Promise<string> {
     const times = element.all(by.css(".timeline .time"));
@@ -467,43 +433,4 @@ export class MedicalHistoryPage {
   getEncounterCard(): ElementFinder {
     return element(by.css('fhir-card'));
   }
-
-  async clickDropdownClinicalReports(): Promise<void> {
-    const report = element(by.id('dropdownReports'));
-    await browser.executeScript('arguments[0].scrollIntoView(true);', report.getWebElement());
-    await browser.wait(
-      EC.elementToBeClickable(report),
-      10000,
-      'Clinical Reports dropdown not clickable'
-    );
-    await report.click();
-  }
-
-  async getLabReportText(): Promise<string> {
-    const el = element.all(
-      by.css("[href='/explore/4c46ee9a-6249-406d-97a0-39d665ea19c9/resource/100302-9-1755869588351-3-4267ca30ff016']")
-    ).first();
-
-    return await el.getText();
-  }
-
-  async getRadiologyLabReportText(): Promise<string> {
-    const el = element(
-      by.cssContainingText("a.dropdown-item", "Lab Report - Radiology studies (set)")
-    );
-    return await el.getText();
-  }
-
-  async clickDropdownAll(): Promise<void> {
-    const dropdown = element.all(by.id('dropdownAll')).first();
-    await dropdown.click();
-  }
-
-  async getDropdownText(): Promise<string> {
-    return await element(by.xpath("//div[@class='dropdown-menu show']")).getText();
-  }
 }
-
-
-
-

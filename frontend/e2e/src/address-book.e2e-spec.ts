@@ -4,7 +4,7 @@ import { AddressBookPage } from './pages/address-book.po';
 import * as fs from 'fs';
 import * as path from 'path';
 
-describe('Login and navigate to Address Book page', () => {
+describe('Navigate to Address Book page and add new practitioner', () => {
   let addressBook: AddressBookPage;
   const existingPractitioner = 'JOHNSON, MICHAEL';
   const newPractitioner = 'NEW TEST PRACTITIONER DENTIST';

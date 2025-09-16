@@ -2,7 +2,7 @@ import { browser } from 'protractor';
 import { BackgroundPage } from './pages/background-job-history.po';
 import { loginAsUser } from './helpers/auth.helper';
 
-describe('Login and navigate to Background Jobs', () => {
+describe('Navigate to Background Jobs and verify statuses of uploaded file', () => {
   let background: BackgroundPage;
 
   beforeAll(async () => {
@@ -24,5 +24,7 @@ describe('Login and navigate to Background Jobs', () => {
     const statusText = await background.getAnyValidStatusLabel().getText();
     expect(['STATUS_LOCKED', 'STATUS_DONE']).toContain(statusText);
     await background.closeDetailsModal();
+     const result = await background.isOnBackgroundJobHistory();
+     expect(result).toBe(true);
   });
 });

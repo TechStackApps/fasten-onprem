@@ -21,29 +21,15 @@ export class LabsPage {
     const el = element(
       by.xpath("//p[contains(.,'Short Name: Tobacco smoking status NHIS Result:   Latest Test Date: Sep 6, 2019')]")
     );
-    await browser.wait(EC.visibilityOf(el), 10000, "Observation not visible");
+    await browser.wait(EC.visibilityOf(el), 10000);
     return await el.getText();
-  }
-
-  async getAllObservations(): Promise<{ date: string; result: string }[]> {
-    const rows = element.all(by.css("div.visualization-container table tbody tr"));
-    const observations: { date: string; result: string }[] = [];
-    const rowCount = await rows.count();
-
-    for (let i = 0; i < rowCount; i++) {
-      const date = await rows.get(i).element(by.css("td:first-child")).getText();
-      const result = await rows.get(i).element(by.css("td:nth-child(2)")).getText();
-      observations.push({ date, result });
-    }
-
-    return observations;
   }
 
   async getPainSeveritySection(): Promise<string> {
     const el = element(
       by.xpath("//span[.='Pain severity - 0-10 verbal numeric rating [Score] - Reported']")
     );
-    await browser.wait(EC.visibilityOf(el), 10000, "Pain severity observation not visible");
+    await browser.wait(EC.visibilityOf(el), 10000);
     return await el.getText();
   }
 
@@ -62,10 +48,8 @@ export class LabsPage {
         .join("\n");
       details.push(cleaned);
     }
-
     return details;
   }
-
 
   async getWeightForLengthText(): Promise<string> {
     const el = element(by.xpath("//span[.='Weight-for-length Per age and sex']"));
@@ -109,7 +93,7 @@ export class LabsPage {
     const el = element(
       by.xpath("//span[.='MCH [Entitic mass] by Automated count']")
     );
-    await browser.wait(EC.visibilityOf(el), 10000, "MCH text not visible");
+    await browser.wait(EC.visibilityOf(el), 10000);
     return await el.getText();
   }
 
@@ -117,7 +101,7 @@ export class LabsPage {
     const el = element(
       by.xpath("//p[contains(.,'Short Name: MCH [Entitic mass] by Automated count')]")
     );
-    await browser.wait(EC.visibilityOf(el), 10000, "MCH observation not visible");
+    await browser.wait(EC.visibilityOf(el), 10000);
     let text = await el.getAttribute("innerText");
     return text
       .replace("show all", "")

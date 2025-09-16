@@ -1,5 +1,4 @@
 import { 
-  browser, 
   by, 
   element, 
   ElementFinder
@@ -10,8 +9,6 @@ export class AuthenticationPage {
     getStartTitle(): ElementFinder {
     return element(by.cssContainingText('h2', "Let's Get Started!"));
   }
-
- 
 
   async enterFullName(name: string): Promise<void> {
     const nameField = element(by.name('full_name'));
@@ -49,5 +46,10 @@ export class AuthenticationPage {
   async clickCreateAccount(): Promise<void> {
     const createAccountBtn = element(by.buttonText('Create Account'));
     await createAccountBtn.click();
+  }
+
+   async getWelcomeMessageText(): Promise<string> {
+    const welcomeMessage = element(by.css('h2.az-dashboard-title'));
+    return await welcomeMessage.getText();
   }
 }

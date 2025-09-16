@@ -4,7 +4,7 @@ import { UsersPage } from './pages/users.po';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
 
-describe('Auth Signin Page', () => {
+describe('Add new users in User page', () => {
   let usersPage: UsersPage;
 
   beforeAll(async () => {
@@ -16,16 +16,15 @@ describe('Auth Signin Page', () => {
   
    it("should verify added user", async () => {  
     await usersPage.clickUsersLink();
- 
-   const exists = await usersPage.isFullNameInTable("User Name");
-   expect(exists).toBe(true, "User Name not found in table");
-
     await usersPage.clickCreateNewUserButton();
     await usersPage.typeFullName("User Name");
     await usersPage.typeUserName("Test Name");
     await usersPage.typePassword("User123!");
     await usersPage.typeEmail("test@username.com");
     await usersPage.clickCreateUserButton();
+
+   const exists = await usersPage.isFullNameInTable("User Name");
+   expect(exists).toBe(true);
     
   });
 }); 

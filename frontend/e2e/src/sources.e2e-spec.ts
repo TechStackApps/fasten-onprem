@@ -5,7 +5,7 @@ import { loginAsUser } from './helpers/auth.helper';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
 
-describe('Auth Signin Page', () => {
+describe('Sources page Upload Medical Record', () => {
   let sourcesPage: SourcesPage;
 
   beforeAll(async () => {
@@ -15,16 +15,16 @@ describe('Auth Signin Page', () => {
     await loginAsUser('user', 'test@test.com');
   });
 
-  describe('Sources Upload flow', () => {
-    it('should navigate to Sources page and upload a file', async () => {
-      await sourcesPage.clickOnSourcesLink();
+  it('should navigate to Sources page and upload a file', async () => {
+    await sourcesPage.clickOnSourcesLink();
 
-      const sourcesUrl = await browser.getCurrentUrl();
-      expect(sourcesUrl).toContain('/sources');
+    const sourcesUrl = await browser.getCurrentUrl();
+    expect(sourcesUrl).toContain('/sources');
 
-      const filePath = path.resolve(__dirname, './data/example_client.json');
-  
-      await sourcesPage.uploadFile(filePath);
-    });
+    const filePath = path.resolve(__dirname, './data/example_client.json');
+    await sourcesPage.uploadFile(filePath);
+
+    const isUploaded = await sourcesPage.isFileUploaded();
+    expect(isUploaded).toBe(true);
   });
 });

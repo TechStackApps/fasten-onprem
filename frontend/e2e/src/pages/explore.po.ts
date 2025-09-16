@@ -1,5 +1,4 @@
 import { 
-  browser, 
   by, 
   element, 
   ExpectedConditions as EC 

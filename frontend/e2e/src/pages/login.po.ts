@@ -1,4 +1,9 @@
-import { browser, by, element, ElementFinder } from 'protractor';
+import { 
+  browser, 
+  by, 
+  element, 
+  ElementFinder 
+} from 'protractor';
 
 export class LoginPage {
   navigateTo() {

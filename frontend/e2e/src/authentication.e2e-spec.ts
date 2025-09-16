@@ -1,7 +1,7 @@
 import { browser } from 'protractor';
 import { AuthenticationPage } from './pages/authentication.po';
 
-describe('Login flow', () => {
+describe('Create and Authenticate New User', () => {
   
   let authenticationPage: AuthenticationPage;
 
@@ -11,7 +11,7 @@ describe('Login flow', () => {
     await browser.waitForAngularEnabled(true);
   });
 
-  it('Authentication for the new user', async () => {
+  it('should create a new user in the app', async () => {
     await browser.get('/auth/signup/wizard');
     
     const currentUrl = await browser.getCurrentUrl();
@@ -21,11 +21,13 @@ describe('Login flow', () => {
     expect(await title.getText()).toEqual("Let's Get Started!");
 
     await authenticationPage.enterFullName('John Doe');
-    await authenticationPage.enterUsername('john123');
-    await authenticationPage.enterEmail('john.doe@test.com');
-    await authenticationPage.enterPassword('Test@1234');
+    await authenticationPage.enterUsername('user');
+    await authenticationPage.enterEmail('test@test.com');
+    await authenticationPage.enterPassword('test@test.com');
     await authenticationPage.checkAgreeTerms();
     await authenticationPage.clickCreateAccount();
+    const text = await authenticationPage.getWelcomeMessageText();
+    expect(text).toEqual('Welcome back!');
   });
 
 });

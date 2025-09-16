@@ -2,7 +2,7 @@ import { browser } from 'protractor';
 import { LoginPage } from './pages/login.po';
 import { loginAsUser } from './helpers/auth.helper';
 
-describe('Auth Signin Page', () => {
+describe('Login with an authenticated user', () => {
   let loginPage: LoginPage;
 
   beforeAll(async () => {
@@ -12,7 +12,7 @@ describe('Auth Signin Page', () => {
     await loginAsUser('user', 'test@test.com');
   });
 
-  describe('Login flow', () => {
+ 
     it('should navigate to dashboard after login', async () => {
       const currentUrl = await browser.getCurrentUrl();
       expect(currentUrl).toContain('/dashboard');
@@ -23,4 +23,3 @@ describe('Auth Signin Page', () => {
       expect(messageText).toContain('Welcome back!');
     });
   });
-});

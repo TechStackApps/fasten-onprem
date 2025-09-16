@@ -4,7 +4,7 @@ import { LabsPage } from './pages/labs.po';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
 
-describe('Auth Signin Page', () => {
+describe('Labs - Verify Lab Reports data and information', () => {
   let labsPage: LabsPage;
 
   beforeAll(async () => {
@@ -14,7 +14,7 @@ describe('Auth Signin Page', () => {
     await loginAsUser('user', 'test@test.com');
   });
 
-  describe('Labs Observations', () => {
+  
     it('should verify Tobacco smoking status', async () => {
       await labsPage.goToLabsPage();
 
@@ -82,4 +82,4 @@ describe('Auth Signin Page', () => {
       expect(observation).toContain('Notes:');
     });
   });
-});
+

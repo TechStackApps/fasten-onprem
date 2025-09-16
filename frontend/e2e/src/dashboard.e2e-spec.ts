@@ -1,10 +1,11 @@
 import { browser } from 'protractor';
+import * as path from 'path';
 import { DashboardPage } from './pages/dashboard.po';
 import { loginAsUser } from './helpers/auth.helper';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
 
-describe('Auth Signin Page ', () => {
+describe('Dashboard Verify Medical Records', () => {
   let dashboard: DashboardPage;
 
   beforeAll(async () => {
@@ -12,18 +13,17 @@ describe('Auth Signin Page ', () => {
     await browser.driver.manage().window().maximize();
     await browser.waitForAngularEnabled(true);
     await loginAsUser('user', 'test@test.com');
+
+    const filePath = path.resolve(__dirname, './data/example_client.json');
+    await dashboard.ensureDataOnDashboard(filePath);
   });
 
-  describe('Verify user health records', () => {
-    it('should display user name in records', async () => {
-      await dashboard.clickDashboardLink();
-      await browser.sleep(4000);
-      const name = await dashboard.getUserNameOnly();
-      expect(name).toBeTruthy('User name should be displayed');
-    });
+  it('should display user name in records', async () => {
+    const name = await dashboard.getUserNameOnly();
+    expect(name).toBeTruthy();
   });
 
-  it("should list medical records dynamically", async () => {
+  it('should list medical records dynamically', async () => {
     const records = await dashboard.getAllRecordsText();
     expect(records.length).toBeGreaterThan(0);
     records.forEach(r => {
@@ -31,7 +31,7 @@ describe('Auth Signin Page ', () => {
     });
   });
 
-  it("should list all medical records and verify numbers exist", async () => {
+  it('should list all medical records and verify numbers exist', async () => {
     const data = await dashboard.getAllRecordObjects();
     expect(data.length).toBeGreaterThan(0);
     data.forEach(item => {
@@ -43,7 +43,7 @@ describe('Auth Signin Page ', () => {
     });
   });
 
-  it("should extract all patient vitals and verify they have numeric values", async () => {
+  it('should extract all patient vitals and verify they have numeric values', async () => {
     const vitals = await dashboard.getAllPatientVitals();
     expect(vitals.length).toBeGreaterThan(0);
     vitals.forEach(v => {
@@ -53,30 +53,21 @@ describe('Auth Signin Page ', () => {
     });
   });
 
-  it("should verify Weight, Height and Blood Pressure vitals ", async () => {
+  it('should verify Weight, Height and Blood Pressure vitals', async () => {
     const weightText = await dashboard.getWeightFromCard();
     const heightText = await dashboard.getHeightFromCard();
     const bpText = await dashboard.getBloodPressureFromCard();
 
     if (weightText) {
-      expect(/\d+(\.\d+)?/.test(weightText)).toBe(
-        true,
-        `Weight is not numeric: ${weightText}`
-      );
+      expect(/\d+(\.\d+)?/.test(weightText)).toBe(true, `Weight is not numeric: ${weightText}`);
     }
 
     if (heightText) {
-      expect(/\d+(\.\d+)?/.test(heightText)).toBe(
-        true,
-        `Height is not numeric: ${heightText}`
-      );
+      expect(/\d+(\.\d+)?/.test(heightText)).toBe(true, `Height is not numeric: ${heightText}`);
     }
 
     if (bpText) {
-      expect(/\d+/.test(bpText)).toBe(
-        true,
-        `Blood Pressure is not numeric: ${bpText}`
-      );
+      expect(/\d+/.test(bpText)).toBe(true, `Blood Pressure is not numeric: ${bpText}`);
     }
   });
 });
