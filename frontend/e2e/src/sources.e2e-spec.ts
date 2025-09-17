@@ -11,7 +11,7 @@ describe('Sources page Upload Medical Record', () => {
   beforeAll(async () => {
     sourcesPage = new SourcesPage();
     await browser.driver.manage().window().maximize();
-    await browser.waitForAngularEnabled(true);
+    await browser.waitForAngularEnabled(false);
     await loginAsUser('user', 'test@test.com');
   });
 
@@ -24,7 +24,6 @@ describe('Sources page Upload Medical Record', () => {
     const filePath = path.resolve(__dirname, './data/example_client.json');
     await sourcesPage.uploadFile(filePath);
 
-    const isUploaded = await sourcesPage.isFileUploaded();
-    expect(isUploaded).toBe(true);
+    expect(await sourcesPage.isFileUploaded()).toBe(true);
   });
 });

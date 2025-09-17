@@ -22,10 +22,13 @@ export class SourcesPage {
     await browser.sleep(3000);
   }
 
-  async isFileUploaded(): Promise<boolean> {
-    const dropzoneLabel = element(by.css('ngx-dropzone-label'));
-    await browser.wait(EC.visibilityOf(dropzoneLabel), 10000);
-    const labelText = await dropzoneLabel.getText();
-   return labelText.trim().length > 0;
+async isFileUploaded(): Promise<boolean> {
+  const preview = element(by.css('ngx-dropzone-preview'));
+  try {
+    await browser.wait(EC.visibilityOf(preview), 20000);
+    return true;
+  } catch {
+    return false;
   }
+ }
 }

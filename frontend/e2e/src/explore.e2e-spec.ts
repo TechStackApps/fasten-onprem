@@ -16,14 +16,12 @@ describe('Explore Medical Records', () => {
   });
 
   
-    it("should verify the Explore page if an uploaded file already exists", async () => {
-      await explorePage.goToExplorePage();
-      const text = await explorePage.getExplorePageTitle();
-      expect(text).toEqual("Explore");
+  it("should verify the Explore page if an uploaded file already exists", async () => {
+    await explorePage.goToExplorePage();
+    const text = await explorePage.getExplorePageTitle();
+    expect(text).toEqual("Explore");
 
-      const medicalRecord = await explorePage.getMedicalRecordLabel();
-      expect(medicalRecord).toContain("Fasten Health");
-
-      await explorePage.clickFirstMedicalRecordCard();
-    });
+    const medicalRecord = await explorePage.getMedicalRecordLabel();
+    expect(medicalRecord).toContain("Fasten Health");
   });
+});

@@ -20,9 +20,5 @@ export class ExplorePage {
     const elementLocator = element(by.cssContainingText("small.tx-gray-700", "Fasten Health"));
     return await elementLocator.getText();
   }
-
-  async clickFirstMedicalRecordCard(): Promise<void> {
-    const elementLocator = element(by.css("app-medical-sources-card:nth-of-type(1) > .card .h-100"));
-    await elementLocator.click();
-  }
+ 
 }

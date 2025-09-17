@@ -25,6 +25,5 @@ describe('Add new users in User page', () => {
 
    const exists = await usersPage.isFullNameInTable("User Name");
    expect(exists).toBe(true);
-    
   });
 }); 

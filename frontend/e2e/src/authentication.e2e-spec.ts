@@ -29,5 +29,4 @@ describe('Create and Authenticate New User', () => {
     const text = await authenticationPage.getWelcomeMessageText();
     expect(text).toEqual('Welcome back!');
   });
-
 });

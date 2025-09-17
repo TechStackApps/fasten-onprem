@@ -24,7 +24,7 @@ describe('Navigate to Background Jobs and verify statuses of uploaded file', () 
     const statusText = await background.getAnyValidStatusLabel().getText();
     expect(['STATUS_LOCKED', 'STATUS_DONE']).toContain(statusText);
     await background.closeDetailsModal();
-     const result = await background.isOnBackgroundJobHistory();
-     expect(result).toBe(true);
+    const result = await background.isOnBackgroundJobHistory();
+    expect(result).toBe(true);
   });
 });
