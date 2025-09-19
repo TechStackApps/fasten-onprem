@@ -1,4 +1,10 @@
-import { browser, by, element, ElementFinder, ExpectedConditions as EC } from 'protractor';
+import {
+  browser,
+  by,
+  element,
+  ElementFinder,
+  ExpectedConditions as EC
+} from 'protractor';
 
 export class SourcesPage {
   getSourcesLink(): ElementFinder {

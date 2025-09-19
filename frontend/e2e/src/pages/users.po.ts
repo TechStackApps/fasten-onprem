@@ -1,4 +1,10 @@
-import { element, by, ElementFinder, browser, ExpectedConditions as EC } from 'protractor';
+import { 
+  element, 
+  by, 
+  ElementFinder, 
+  browser, 
+  ExpectedConditions as EC 
+} from 'protractor';
 
 export class UsersPage {
   async clickUsersLink(): Promise<void> {

@@ -1,4 +1,10 @@
-import { browser, by, element, protractor, ElementFinder, ExpectedConditions as EC } from 'protractor';
+import { 
+  browser,
+  by,
+  element,
+  ElementFinder,
+  ExpectedConditions as EC
+} from 'protractor';
 
 export class SettingsPage {
   getUserIcon(): ElementFinder {
