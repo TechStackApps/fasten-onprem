@@ -1,0 +1,30 @@
+import { browser } from 'protractor';
+import { BackgroundPage } from './pages/background-job-history.po';
+import { loginAsUser } from './helpers/auth.helper';
+
+describe('Navigate to Background Jobs and verify statuses of uploaded file', () => {
+  let background: BackgroundPage;
+
+  beforeAll(async () => {
+    background = new BackgroundPage();
+
+    await browser.waitForAngularEnabled(true);
+    await browser.driver.manage().window().maximize();
+    await loginAsUser('user', 'test@test.com');
+  });
+
+  it('should open notifications and view background job details', async () => {
+
+    await background.openNotificationsDropdown();
+    await background.clickOnViewHistory();
+    await browser.waitForAngularEnabled(false);
+    await background.clickDetailsButton();
+    await background.verifyAnyValidStatusLabel();
+
+    const statusText = await background.getAnyValidStatusLabel().getText();
+    expect(['STATUS_LOCKED', 'STATUS_DONE']).toContain(statusText);
+    await background.closeDetailsModal();
+    const result = await background.isOnBackgroundJobHistory();
+    expect(result).toBe(true);
+  });
+});
