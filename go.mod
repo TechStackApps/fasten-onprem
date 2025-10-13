@@ -1,8 +1,8 @@
 module github.com/fastenhealth/fasten-onprem
 
-go 1.21.1
+go 1.23.0
 
-toolchain go1.24.2
+toolchain go1.24.3
 
 //replace github.com/fastenhealth/fasten-sources => ../fasten-sources
 
@@ -26,7 +26,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/golang/mock v1.6.0
 	github.com/google/go-github/v54 v54.0.0
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/iancoleman/strcase v0.2.0
 	github.com/johnfercher/maroto/v2 v2.3.1
 	github.com/lestrrat-go/jwx/v2 v2.0.11
@@ -35,10 +35,10 @@ require (
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/cli/v2 v2.11.2
-	golang.org/x/crypto v0.14.0
+	golang.org/x/crypto v0.36.0
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17
 	golang.org/x/mod v0.17.0
-	golang.org/x/net v0.17.0
+	golang.org/x/net v0.38.0
 	gorm.io/datatypes v1.0.7
 	gorm.io/driver/sqlite v1.5.4
 	gorm.io/gorm v1.25.4
@@ -126,9 +126,9 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/oauth2 v0.11.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/term v0.13.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/term v0.30.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
