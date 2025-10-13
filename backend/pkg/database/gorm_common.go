@@ -87,6 +87,12 @@ func (gr *GormRepository) GetUserByUsername(ctx context.Context, username string
 	return &foundUser, result.Error
 }
 
+func (gr *GormRepository) GetLDAPAuditLogs(ctx context.Context, limit int) ([]models.AuditLogs, error) {
+	var logs []models.AuditLogs
+	result := gr.GormClient.WithContext(ctx).Order("created_at desc").Limit(limit).Find(&logs)
+	return logs, result.Error
+}
+
 // TODO: check for error, right now we return a nil which may cause a panic.
 // TODO: can we cache the current user? //SECURITY:
 func (gr *GormRepository) GetCurrentUser(ctx context.Context) (*models.User, error) {

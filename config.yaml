@@ -23,6 +23,12 @@ web:
     # the location on the filesystem where webapp javascript + css is located
     frontend:
       path: /opt/fasten/web
+  # LDAP configuration for authentication (comment to disable LDAP)
+  # ldap:
+  #   url: ldap://ldap_server:389        # e.g. ldap://localhost:389
+  #   base_dn: dc=fasten,dc=local       # e.g. dc=fasten,dc=local
+  #   bind_dn: cn=admin,dc=fasten,dc=local  # e.g. cn=admin,dc=fasten,dc=local
+  #   bind_pass: admin                   # e.g. admin
 database:
   encryption:
     enabled: true

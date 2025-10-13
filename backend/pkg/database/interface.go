@@ -22,6 +22,8 @@ type DatabaseRepository interface {
 	DeleteCurrentUser(ctx context.Context) error
 	GetUsers(ctx context.Context) ([]models.User, error)
 
+	GetLDAPAuditLogs(ctx context.Context, limit int) ([]models.AuditLogs, error)
+
 	//get a count of every resource type
 	GetSummary(ctx context.Context) (*models.Summary, error)
 	GetInternationalPatientSummaryExport(ctx context.Context) (*ips.InternationalPatientSummaryExportData, error)

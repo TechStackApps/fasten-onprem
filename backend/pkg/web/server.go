@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"os"
+
 	"github.com/fastenhealth/fasten-onprem/backend/pkg"
 	"github.com/fastenhealth/fasten-onprem/backend/pkg/config"
 	"github.com/fastenhealth/fasten-onprem/backend/pkg/database"
@@ -22,14 +24,13 @@ import (
 	"github.com/fastenhealth/fasten-onprem/backend/pkg/web/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"os"
 )
 
 type AppEngine struct {
-	Config     config.Interface
-	Logger     *logrus.Entry
-	EventBus   event_bus.Interface
-	deviceRepo database.DatabaseRepository
+	Config      config.Interface
+	Logger      *logrus.Entry
+	EventBus    event_bus.Interface
+	deviceRepo  database.DatabaseRepository
 	StandbyMode bool
 
 	RelatedVersions map[string]string //related versions metadata provided & embedded by the build process
@@ -99,8 +100,8 @@ func (ae *AppEngine) Setup() (*gin.RouterGroup, *gin.Engine) {
 					c.JSON(http.StatusOK, gin.H{
 						"success": true,
 						"data": gin.H{
-							"first_run_wizard":   firstRunWizard,
-							"standby_mode":       true,
+							"first_run_wizard": firstRunWizard,
+							"standby_mode":     true,
 						},
 					})
 					return
@@ -125,8 +126,8 @@ func (ae *AppEngine) Setup() (*gin.RouterGroup, *gin.Engine) {
 				c.JSON(http.StatusOK, gin.H{
 					"success": true,
 					"data": gin.H{
-						"first_run_wizard":   firstRunWizard,
-						"standby_mode":       false,
+						"first_run_wizard": firstRunWizard,
+						"standby_mode":     false,
 					},
 				})
 			})
@@ -203,6 +204,12 @@ func (ae *AppEngine) Setup() (*gin.RouterGroup, *gin.Engine) {
 					secure.POST("/user/favorites", handler.AddPractitionerToFavorites)
 					secure.DELETE("/user/favorites", handler.RemovePractitionerFromFavorites)
 					secure.GET("/user/favorites", handler.GetUserFavoritePractitioners)
+
+					// LDAP configuration (admin only)
+					secure.POST("/ldap/sign-in", handler.AuthSigninLDAP)
+					secure.POST("/ldap/test-connection", handler.TestLDAPConnection)
+					secure.POST("/ldap/import", handler.ImportUsersFromLDAP)
+					secure.GET("/ldap/audit", handler.GetLDAPAuditLogs)
 
 					// Access token management
 					secure.GET("/access/token", handler.GetAccessTokens)

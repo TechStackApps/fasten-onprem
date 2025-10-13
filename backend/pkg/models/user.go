@@ -14,6 +14,11 @@ type User struct {
 	FullName string `json:"full_name"`
 	Username string `json:"username" gorm:"unique"`
 	Password string `json:"password"`
+	AuthType string `json:"auth_type"` //can be "local" or "ldap" types
+
+	//LDAP details
+	SourceDN string `json:"source_dn"` //if auth_type is ldap, this is the DN of the user in the LDAP server
+	LastSync string `json:"last_sync"` //timestamp of the last sync with LDAP server
 
 	//additional optional metadata that Fasten stores with users
 	Picture string       `json:"picture"`

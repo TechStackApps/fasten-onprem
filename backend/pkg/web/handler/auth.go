@@ -11,6 +11,7 @@ import (
 	"github.com/fastenhealth/fasten-onprem/backend/pkg/models"
 	"github.com/fastenhealth/fasten-onprem/backend/pkg/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-ldap/ldap/v3"
 	"github.com/sirupsen/logrus"
 )
 
@@ -98,6 +99,83 @@ func AuthSignin(c *gin.Context) {
 	}
 
 	//TODO: we can derive the encryption key and the hash'ed user from the responseData sub. For now the Sub will be the user id prepended with hello.
+	userFastenToken, err := auth.JwtGenerateFastenTokenFromUser(*foundUser, appConfig.GetString("jwt.issuer.key"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": userFastenToken})
+}
+
+func AuthSigninLDAP(c *gin.Context) {
+	databaseRepo := c.MustGet(pkg.ContextKeyTypeDatabase).(database.DatabaseRepository)
+	appConfig := c.MustGet(pkg.ContextKeyTypeConfig).(config.Interface)
+
+	var creds struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	if err := c.ShouldBindJSON(&creds); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+
+	// Find user in local DB
+	foundUser, err := databaseRepo.GetUserByUsername(c, creds.Username)
+	if err != nil || foundUser == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": fmt.Sprintf("user not found: %s", creds.Username)})
+		return
+	}
+
+	// Check if the user is tagged as LDAP
+	if foundUser.AuthType != "LDAP" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "user is not configured for LDAP authentication"})
+		return
+	}
+
+	// Get LDAP connection config from app config or DB
+	ldapURL := appConfig.GetString("web.ldap.url")            // e.g. ldap://localhost:389
+	baseDN := appConfig.GetString("web.ldap.base_dn")         // e.g. dc=fasten,dc=local
+	bindDN := appConfig.GetString("web.ldap.bind_dn")         // e.g. cn=admin,dc=fasten,dc=local
+	bindPassword := appConfig.GetString("web.ldap.bind_pass") // e.g. admin
+
+	l, err := ldap.DialURL(ldapURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": fmt.Sprintf("LDAP connection failed: %v", err)})
+		return
+	}
+	defer l.Close()
+
+	// Bind as admin to search for the user's DN
+	if err := l.Bind(bindDN, bindPassword); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": fmt.Sprintf("LDAP bind failed: %v", err)})
+		return
+	}
+
+	searchRequest := ldap.NewSearchRequest(
+		baseDN,
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		fmt.Sprintf("(uid=%s)", creds.Username),
+		[]string{"dn"},
+		nil,
+	)
+
+	sr, err := l.Search(searchRequest)
+	if err != nil || len(sr.Entries) == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "LDAP user not found"})
+		return
+	}
+
+	userDN := sr.Entries[0].DN
+
+	// Try binding as the user to verify password
+	if err := l.Bind(userDN, creds.Password); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "invalid LDAP credentials"})
+		return
+	}
+
+	// Generate Fasten token just like normal signin
 	userFastenToken, err := auth.JwtGenerateFastenTokenFromUser(*foundUser, appConfig.GetString("jwt.issuer.key"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
