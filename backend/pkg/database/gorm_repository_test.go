@@ -81,6 +81,8 @@ func (suite *RepositoryTestSuite) TestNewRepository() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 
 	//test
 	_, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
@@ -96,6 +98,8 @@ func (suite *RepositoryTestSuite) TestCreateUser() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -118,6 +122,8 @@ func (suite *RepositoryTestSuite) TestCreateUser_WithExitingUser_ShouldFail() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -148,6 +154,8 @@ func (suite *RepositoryTestSuite) TestCreateUser_WithUserProvidedId_ShouldBeRepl
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -175,6 +183,8 @@ func (suite *RepositoryTestSuite) TestGetUserByUsername() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 	userModel := &models.User{
@@ -200,6 +210,8 @@ func (suite *RepositoryTestSuite) TestGetUserByUsername_WithInvalidUsername() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 	userModel := &models.User{
@@ -224,6 +236,8 @@ func (suite *RepositoryTestSuite) TestGetCurrentUser_WithContextBackgroundAuthUs
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 	userModel := &models.User{
@@ -250,6 +264,8 @@ func (suite *RepositoryTestSuite) TestGetCurrentUser_WithGinContextBackgroundAut
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 	userModel := &models.User{
@@ -280,6 +296,8 @@ func (suite *RepositoryTestSuite) TestGetCurrentUser_WithContextBackgroundAuthUs
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -298,6 +316,8 @@ func (suite *RepositoryTestSuite) TestCreateGlossaryEntry() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -335,6 +355,8 @@ func (suite *RepositoryTestSuite) TestUpsertRawResource() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -393,6 +415,8 @@ func (suite *RepositoryTestSuite) TestUpsertRawResource_WithRelatedResourceAndDu
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -435,6 +459,160 @@ func (suite *RepositoryTestSuite) TestUpsertRawResource_WithRelatedResourceAndDu
 
 }
 
+func (suite *RepositoryTestSuite) TestUpsertRawResource_Upsert() {
+	// setup
+	fakeConfig := mock_config.NewMockInterface(suite.MockCtrl)
+	fakeConfig.EXPECT().GetString("database.location").Return(suite.TestDatabase.Name()).AnyTimes()
+	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
+	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
+	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
+	require.NoError(suite.T(), err)
+
+	userModel := &models.User{
+		Username: "test_username",
+		Password: "testpassword",
+		Email:    "test@test.com",
+	}
+	err = dbRepo.CreateUser(context.Background(), userModel)
+	require.NoError(suite.T(), err)
+	authContext := context.WithValue(context.Background(), pkg.ContextKeyTypeAuthUsername, "test_username")
+
+	testSourceCredential := models.SourceCredential{
+		ModelBase: models.ModelBase{
+			ID: uuid.New(),
+		},
+		UserID: userModel.ID,
+	}
+	patientData, err := os.ReadFile("./testdata/Abraham100_Heller342_Patient.json")
+	require.NoError(suite.T(), err)
+
+	// test
+	wasCreated, err := dbRepo.UpsertRawResource(
+		authContext,
+		&testSourceCredential,
+		sourceModels.RawResourceFhir{
+			SourceResourceType:  "Patient",
+			SourceResourceID:    "b426b062-8273-4b93-a907-de3176c0567d",
+			ResourceRaw:         patientData,
+			ReferencedResources: []string{"Observation/obs1"},
+		},
+	)
+	require.NoError(suite.T(), err)
+	require.True(suite.T(), wasCreated)
+
+	var patientToUpdate fhir401.Patient
+	err = json.Unmarshal(patientData, &patientToUpdate)
+	require.NoError(suite.T(), err)
+	updatedFamilyName := "Heller-Updated"
+	patientToUpdate.Name[0].Family = &updatedFamilyName
+	updatedPatientData, err := json.Marshal(patientToUpdate)
+	require.NoError(suite.T(), err)
+
+	wasCreated, err = dbRepo.UpsertRawResource(
+		authContext,
+		&testSourceCredential,
+		sourceModels.RawResourceFhir{
+			SourceResourceType: "Patient",
+			SourceResourceID:   "b426b062-8273-4b93-a907-de3176c0567d",
+			ResourceRaw:        updatedPatientData,
+		},
+	)
+	require.NoError(suite.T(), err)
+	require.True(suite.T(), wasCreated, "Resource should have been updated")
+
+	// assert
+	foundPatientResource, err := dbRepo.GetResourceByResourceTypeAndId(authContext, "Patient", "b426b062-8273-4b93-a907-de3176c0567d")
+	require.NoError(suite.T(), err)
+	require.NotNil(suite.T(), foundPatientResource)
+
+	var actualPatientData fhir401.Patient
+	err = json.Unmarshal(foundPatientResource.ResourceRaw, &actualPatientData)
+	require.NoError(suite.T(), err)
+
+	require.Equal(suite.T(), updatedFamilyName, *actualPatientData.Name[0].Family)
+
+	relatedResource, err := dbRepo.FindResourceAssociationsByTypeAndId(authContext, &testSourceCredential, "Patient", "b426b062-8273-4b93-a907-de3176c0567d")
+	require.NoError(suite.T(), err)
+	require.Equal(suite.T(), 1, len(relatedResource))
+	require.Equal(suite.T(), "Observation", relatedResource[0].RelatedResourceSourceResourceType)
+	require.Equal(suite.T(), "obs1", relatedResource[0].RelatedResourceSourceResourceID)
+}
+
+func (suite *RepositoryTestSuite) TestUpsertRawResource_UpsertWithNewAssociation() {
+	// setup
+	fakeConfig := mock_config.NewMockInterface(suite.MockCtrl)
+	fakeConfig.EXPECT().GetString("database.location").Return(suite.TestDatabase.Name()).AnyTimes()
+	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
+	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
+	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
+	require.NoError(suite.T(), err)
+
+	userModel := &models.User{
+		Username: "test_username",
+		Password: "testpassword",
+		Email:    "test@test.com",
+	}
+	err = dbRepo.CreateUser(context.Background(), userModel)
+	require.NoError(suite.T(), err)
+	authContext := context.WithValue(context.Background(), pkg.ContextKeyTypeAuthUsername, "test_username")
+
+	testSourceCredential := models.SourceCredential{
+		ModelBase: models.ModelBase{
+			ID: uuid.New(),
+		},
+		UserID: userModel.ID,
+	}
+	patientData, err := os.ReadFile("./testdata/Abraham100_Heller342_Patient.json")
+	require.NoError(suite.T(), err)
+
+	// test
+	wasCreated, err := dbRepo.UpsertRawResource(
+		authContext,
+		&testSourceCredential,
+		sourceModels.RawResourceFhir{
+			SourceResourceType:  "Patient",
+			SourceResourceID:    "b426b062-8273-4b93-a907-de3176c0567d",
+			ResourceRaw:         patientData,
+			ReferencedResources: []string{"Observation/obs1"},
+		},
+	)
+	require.NoError(suite.T(), err)
+	require.True(suite.T(), wasCreated)
+
+	wasCreated, err = dbRepo.UpsertRawResource(
+		authContext,
+		&testSourceCredential,
+		sourceModels.RawResourceFhir{
+			SourceResourceType:  "Patient",
+			SourceResourceID:    "b426b062-8273-4b93-a907-de3176c0567d",
+			ResourceRaw:         patientData,
+			ReferencedResources: []string{"Observation/obs2"},
+		},
+	)
+	require.NoError(suite.T(), err)
+	require.True(suite.T(), wasCreated, "Resource should have been updated")
+
+	// assert
+	relatedResource, err := dbRepo.FindResourceAssociationsByTypeAndId(authContext, &testSourceCredential, "Patient", "b426b062-8273-4b93-a907-de3176c0567d")
+	require.NoError(suite.T(), err)
+	require.Equal(suite.T(), 2, len(relatedResource))
+
+	sort.Slice(relatedResource, func(i, j int) bool {
+		return relatedResource[i].RelatedResourceSourceResourceID < relatedResource[j].RelatedResourceSourceResourceID
+	})
+
+	require.Equal(suite.T(), "Observation", relatedResource[0].RelatedResourceSourceResourceType)
+	require.Equal(suite.T(), "obs1", relatedResource[0].RelatedResourceSourceResourceID)
+	require.Equal(suite.T(), "Observation", relatedResource[1].RelatedResourceSourceResourceType)
+	require.Equal(suite.T(), "obs2", relatedResource[1].RelatedResourceSourceResourceID)
+}
+
 func (suite *RepositoryTestSuite) TestListResources() {
 	//setup
 	fakeConfig := mock_config.NewMockInterface(suite.MockCtrl)
@@ -442,6 +620,8 @@ func (suite *RepositoryTestSuite) TestListResources() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -546,6 +726,8 @@ func (suite *RepositoryTestSuite) TestGetResourceByResourceTypeAndId() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -601,6 +783,8 @@ func (suite *RepositoryTestSuite) TestGetResourceBySourceId() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -656,6 +840,8 @@ func (suite *RepositoryTestSuite) TestGetPatientForSources() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -714,6 +900,8 @@ func (suite *RepositoryTestSuite) TestAddResourceAssociation() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -752,6 +940,8 @@ func (suite *RepositoryTestSuite) TestAddResourceAssociation_WithMismatchingSour
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -803,6 +993,8 @@ func (suite *RepositoryTestSuite) TestRemoveResourceAssociation() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -846,6 +1038,8 @@ func (suite *RepositoryTestSuite) TestGetSourceSummary() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -929,6 +1123,8 @@ func (suite *RepositoryTestSuite) TestGetSummary() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -1034,6 +1230,8 @@ func (suite *RepositoryTestSuite) TestAddResourceComposition() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -1121,6 +1319,8 @@ func (suite *RepositoryTestSuite) TestAddResourceComposition_WithExistingComposi
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -1283,6 +1483,8 @@ func (suite *RepositoryTestSuite) TestCreateBackgroundJob_Sync() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 	userModel := &models.User{
@@ -1319,6 +1521,8 @@ func (suite *RepositoryTestSuite) TestListBackgroundJobs() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("DEBUG").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -1398,6 +1602,8 @@ func (suite *RepositoryTestSuite) TestUpdateBackgroundJob() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 
@@ -1445,6 +1651,8 @@ func (suite *RepositoryTestSuite) TestFindAllResourceAssociations_AsBase() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 	ctx := context.Background()
@@ -1553,6 +1761,8 @@ func (suite *RepositoryTestSuite) TestFindAllResourceAssociations_AsRelated() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 	ctx := context.Background()
@@ -1654,6 +1864,8 @@ func (suite *RepositoryTestSuite) TestFindAllResourceAssociations_AsBaseAndRelat
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 	ctx := context.Background()
@@ -1757,6 +1969,8 @@ func (suite *RepositoryTestSuite) TestRemoveBulkResourceAssociations_Success() {
 	fakeConfig.EXPECT().GetString("database.type").Return("sqlite").AnyTimes()
 	fakeConfig.EXPECT().IsSet("database.encryption.key").Return(false).AnyTimes()
 	fakeConfig.EXPECT().GetString("log.level").Return("INFO").AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.validation_mode").Return(false).AnyTimes()
+	fakeConfig.EXPECT().GetBool("database.encryption.enabled").Return(false).AnyTimes()
 	dbRepo, err := NewRepository(fakeConfig, logrus.WithField("test", suite.T().Name()), event_bus.NewNoopEventBusServer())
 	require.NoError(suite.T(), err)
 	ctx := context.Background()
